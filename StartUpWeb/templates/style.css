@@ -6,7 +6,7 @@
 }
 
 body {
-    background: url('Landing_page_img.gif');
+    background: url('static/images/Landing_page_img.gif');
     background-size: cover;
     background-repeat: no-repeat;
     color: white;
