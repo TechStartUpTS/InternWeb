@@ -1,32 +1,43 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="/static/Landing_page.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASIFY</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
-<body >
-  <div class="main_container">
-    <img class="tree_img" src="/static/images/Landing_page_img.gif" alt="NotFound">
-    <div class="landing_pg_txt">
-      <h1 class="WebName">
-        Easify
-      </h1>
-      <p class="Moto">
-        <span class="high_lighted">Internship</span> seekers and <span class="high_lighted">startups</span>, meet here! <br>Get <span class="high_lighted2">experience</span>, build <span class="high_lighted2">projects</span>, and grow together
-      </p>     
-      <div class="Join_as">
-        JOIN AS
-      </div>
-      <div class="Choose">
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">EASIFY</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
         
-        <button id="startup_intern_btn1" onclick="choice_startup()"><span id="btn_txt1">StartUp</span></button>
-        <button id="startup_intern_btn2" onclick="choice_intern()"><span id="btn_txt2">Intern</span></button>
-      </div>
+        <main>
+            <div class="hero">
+                <h1>Welcome to EASIFY</h1>
+                <p>Internship seekers and startups, meet here!
+                    Get experience, build projects, and grow together</p>
+                
+                <div class="cta-buttons">
+                    <button class="btn intern-btn" style="color: #0B2C3D;">Join as INTERN</button>
+                    <button class="btn startup-btn" style="color: #0B2C3D;">Join as STARTUP</button>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 EASIFY. All rights reserved.</p>
+        </footer>
     </div>
-  </div>
-  <script src="/static/Landing_page.js"></script>
 </body>
-
 </html>
