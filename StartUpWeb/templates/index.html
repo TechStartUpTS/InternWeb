@@ -4,20 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EASIFY</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('Landing_page_img.gif');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .shadow{
+            text-shadow: 0 0 10px white, 0 0 20px white, 0 0 40px white, 0 0 80px white;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s ease;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: #858D71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .intern-btn, .startup-btn {
+            min-width: 180px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            text-align: center;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal p {
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background-color: #858D71;
+        }
+
+        .btn-secondary {
+            background-color: #858D71;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 36px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="shadow">
             <div class="logo">EASIFY</div>
             <nav>
                 <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="#" id="homeLink">Home</a></li>
+                    <li><a href="#" id="aboutLink">About</a></li>
+                    <li><a href="#" id="contactLink">Contact</a></li>
                 </ul>
             </nav>
         </header>
@@ -29,8 +235,8 @@
                     Get experience, build projects, and grow together</p>
                 
                 <div class="cta-buttons">
-                    <button class="btn intern-btn" style="color: #0B2C3D;">Join as INTERN</button>
-                    <button class="btn startup-btn" style="color: #0B2C3D;">Join as STARTUP</button>
+                    <button class="btn intern-btn" id="internButton" style="color: #0B2C3D;">Join as INTERN</button>
+                    <button class="btn startup-btn" id="startupButton" style="color: #0B2C3D;">Join as STARTUP</button>
                 </div>
             </div>
         </main>
@@ -39,5 +245,95 @@
             <p>&copy; 2025 EASIFY. All rights reserved.</p>
         </footer>
     </div>
+
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Sign In Required</h2>
+            <p>Please sign in to access this feature.</p>
+            <div class="modal-buttons">
+                <button id="signInInternBtn" class="btn btn-primary" style="color: #0B2C3D;">Join as INTERN</button>
+                <button id="signInStartupBtn" class="btn btn-secondary" style="color: #0B2C3D;">Join as STARTUP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check login status
+        function isLoggedIn() {
+            return localStorage.getItem("isLoggedIn") === "true";
+        }
+
+        // Show modal
+        function showAuthModal() {
+            document.getElementById("authModal").style.display = "flex";
+        }
+
+        // Close modal when clicking on X
+        document.querySelector(".close").addEventListener("click", function() {
+            document.getElementById("authModal").style.display = "none";
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener("click", function(event) {
+            if (event.target === document.getElementById("authModal")) {
+                document.getElementById("authModal").style.display = "none";
+            }
+        });
+
+        // Handle navigation links
+        document.getElementById("homeLink").addEventListener("click", function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                window.location.href = "index.html";
+            } else {
+                showAuthModal();
+            }
+        });
+
+        document.getElementById("aboutLink").addEventListener("click", function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                alert("About page would be loaded here.");
+            } else {
+                showAuthModal();
+            }
+        });
+
+        document.getElementById("contactLink").addEventListener("click", function(e) {
+            e.preventDefault();
+            if (isLoggedIn()) {
+                alert("Contact page would be loaded here.");
+            } else {
+                showAuthModal();
+            }
+        });
+
+        // Join buttons (on main page)
+        document.getElementById("internButton").addEventListener("click", function() {
+            localStorage.setItem("userType", "intern");
+            window.location.href = "auth.html";
+        });
+
+        document.getElementById("startupButton").addEventListener("click", function() {
+            localStorage.setItem("userType", "startup");
+            window.location.href = "auth.html";
+        });
+
+        // Join buttons (in modal)
+        document.getElementById("signInInternBtn").addEventListener("click", function() {
+            localStorage.setItem("userType", "intern");
+            window.location.href = "auth.html";
+        });
+
+        document.getElementById("signInStartupBtn").addEventListener("click", function() {
+            localStorage.setItem("userType", "startup");
+            window.location.href = "auth.html";
+        });
+    </script>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
 </body>
 </html>
