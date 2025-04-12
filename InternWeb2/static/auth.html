@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StartupIntern - Sign In/Sign Up</title>
+    <link rel="stylesheet" href="style2.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #f6f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            padding: 1rem;
+        }
+
+        h1 {
+            font-weight: bold;
+            margin: 0;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin: 1.25rem 0 1.875rem;
+        }
+
+        span {
+            font-size: 0.75rem;
+        }
+
+        a {
+            color: #333;
+            font-size: 0.875rem;
+            text-decoration: none;
+            margin: 0.9375rem 0;
+        }
+
+        button {
+            border: none;
+            padding: 0.75rem 3rem;
+            background-color: #ff4b2b;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: bold;
+            letter-spacing: 0.0625rem;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+            cursor: pointer;
+            border-radius: 0.375rem;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        button.ghost {
+            background-color: transparent;
+            border: 2px solid #ffffff;
+        }
+
+        button.ghost:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        form {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 3.125rem;
+            height: 100%;
+            text-align: center;
+        }
+
+        input {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 0.75rem 0.9375rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 0.375rem;
+        }
+
+        input:focus {
+            outline: none;
+            background-color: #e8e8e8;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 0.625rem;
+            box-shadow: 0 0.875rem 1.75rem rgba(0, 0, 0, 0.25), 0 0.625rem 0.625rem rgba(0, 0, 0, 0.22);
+            position: relative;
+            overflow: hidden;
+            width: 48rem;
+            max-width: 100%;
+            min-height: 30rem;
+        }
+
+        .form-container {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .sign-in-container {
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+
+        .sign-up-container {
+            left: 0;
+            width: 50%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .container.right-panel-active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+        }
+
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s ease-in-out;
+            z-index: 100;
+        }
+
+        .container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            background: linear-gradient(to right, #ff4b2b, #ff416c);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 0 0;
+            color: #ffffff;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 2.5rem;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transform: translateX(0);
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        .social-container {
+            margin: 1.25rem 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .social-container a {
+            border: 1px solid #dddddd;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 0.3125rem;
+            height: 2.5rem;
+            width: 2.5rem;
+            color: #333333;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-container a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .mobile-text {
+            display: none;
+        }
+
+        .error-message {
+            color: #ff4b2b;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-message {
+            color: #4BB543;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #ff4b2b;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                min-height: 25rem;
+            }
+
+            .overlay-container {
+                display: none;
+            }
+
+            .sign-in-container,
+            .sign-up-container {
+                width: 100%;
+            }
+
+            .container.right-panel-active .sign-up-container {
+                transform: translateX(0);
+            }
+
+            .container.right-panel-active .sign-in-container {
+                transform: translateX(-100%);
+            }
+
+            .mobile-text {
+                display: block;
+                margin-top: 1rem;
+                font-size: 0.875rem;
+            }
+
+            .mobile-text a {
+                color: #ff4b2b;
+                font-weight: 500;
+                margin: 0;
+                margin-left: 0.25rem;
+            }
+
+            form {
+                padding: 0 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <!-- Sign Up Form -->
+        <div class="form-container sign-up-container">
+            <form id="signupForm">
+                <h1 style="color: black; margin-top: 3rem;">Create Account</h1>
+                <div class="social-container">
+                    <a href="/auth/google/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="/auth/github/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                    <a href="/auth/linkedin/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </a>
+                </div>
+                <span style="color: black;">or use your email for registration</span>
+                <input type="text" name="name" placeholder="Name" required />
+                <input type="email" name="email" placeholder="Email" required />
+                <input type="password" name="password" placeholder="Password" required />
+                <div id="signupErrorMessage" class="error-message"></div>
+                <div id="signupSuccessMessage" class="success-message"></div>
+                <div id="signupLoading" class="loading"></div>
+                <button type="submit">Sign Up</button>
+                <p class="mobile-text" style="color: black;">Already have an account? <a href="#" onclick="togglePanel()">Sign In</a></p>
+            </form>
+        </div>
+
+        <!-- Sign In Form -->
+        <div class="form-container sign-in-container">
+            <form id="signinForm">
+                <h1 style="color: black; margin-top: 3rem;">Sign In</h1>
+                <div class="social-container">
+                    <a href="/auth/google/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="/auth/github/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                    <a href="/auth/linkedin/login" class="social">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </a>
+                </div>
+                <span style="color: black;">or use your account</span>
+                <input type="email" name="username" placeholder="Email" required />
+                <input type="password" name="password" placeholder="Password" required />
+                <div id="signinErrorMessage" class="error-message"></div>
+                <div id="signinLoading" class="loading"></div>
+                <a href="#" style="color: black;">Forgot your password?</a>
+                <button type="submit">Sign In</button>
+                <p class="mobile-text" style="color: black;">Don't have an account? <a href="#" onclick="togglePanel()" style="color: black;">Sign Up</a></p>
+            </form>
+        </div>
+
+        <!-- Overlay Container -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="ghost" onclick="togglePanel()">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start journey with us</p>
+                    <button class="ghost" onclick="togglePanel()">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between sign in and sign up panels
+        function togglePanel() {
+            document.getElementById('container').classList.toggle('right-panel-active');
+        }
+
+        // Check if user is already logged in via cookie
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/auth/cookie-login', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    window.location.href = '/dashboard'; // Redirect to dashboard if logged in
+                }
+            } catch (error) {
+                console.error('Auto-login check failed:', error);
+            }
+        });
+
+        // Signup form submission
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const errorMessageElement = document.getElementById('signupErrorMessage');
+            const successMessageElement = document.getElementById('signupSuccessMessage');
+            const loadingElement = document.getElementById('signupLoading');
+
+            errorMessageElement.textContent = '';
+            successMessageElement.textContent = '';
+            loadingElement.style.display = 'block';
+
+            const formData = new FormData(e.target);
+            const userData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessageElement.textContent = 'Account created successfully! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    errorMessageElement.textContent = data.detail || 'Something went wrong';
+                }
+            } catch (error) {
+                errorMessageElement.textContent = 'Server error. Please try again.';
+                console.error('Signup error:', error);
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        });
+
+        // Signin form submission
+        document.getElementById('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const errorMessageElement = document.getElementById('signinErrorMessage');
+            const loadingElement = document.getElementById('signinLoading');
+
+            errorMessageElement.textContent = '';
+            loadingElement.style.display = 'block';
+
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/token', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    errorMessageElement.textContent = data.detail || 'Invalid credentials';
+                }
+            } catch (error) {
+                errorMessageElement.textContent = 'Server error. Please try again.';
+                console.error('Signin error:', error);
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
