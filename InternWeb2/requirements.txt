@@ -1,10 +1,10 @@
-fastapi
-uvicorn
-pymongo
+fastapi==0.103.2
+uvicorn==0.23.2
+pymongo==4.5.0
 python-jose[cryptography]
 passlib[bcrypt]
 python-dotenv
-fastapi-sso
+fastapi-sso==0.10.0
 email-validator
 python-multipart
 pymongo[srv]==4.3.3
