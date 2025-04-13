@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from pymongo import MongoClient
+import certifi
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -24,7 +25,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
 
 # MongoDB Connection using the environment variable (MONGODB_URL)
-client = MongoClient(os.getenv("MONGODB_URL"))
+client = MongoClient(
+    os.getenv("MONGODB_URL"),
+    tlsCAFile=certifi.where(),  # SSL certificate fix
+    connectTimeoutMS=30000,
+    socketTimeoutMS=30000
+)
 db = client["startup_intern_db"]
 users_collection = db["users"]
 
