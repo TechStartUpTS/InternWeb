@@ -266,6 +266,19 @@ async def cookie_login(response: Response, access_token: Optional[str] = Cookie(
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
 
 
+@app.get("/auth/google/login")
+async def google_login():
+    return await google_sso.get_login_redirect()
+
+@app.get("/auth/github/login")
+async def github_login():
+    return await github_sso.get_login_redirect()
+
+@app.get("/auth/linkedin/login")
+async def linkedin_login():
+    return await linkedin_sso.get_login_redirect()
+
+
 # --------------------- Social Login Routes ---------------------
 
 # Google OAuth callback endpoint
