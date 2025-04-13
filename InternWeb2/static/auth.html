@@ -381,110 +381,99 @@
     </div>
 
     <script>
-        // Toggle between sign in and sign up panels
-        function togglePanel() {
-            document.getElementById('container').classList.toggle('right-panel-active');
+    //  API BASE URL (Yeh Render ka URL hai)
+    const API_BASE_URL = "https://internweb.onrender.com";
+
+    // Toggle between sign in/sign up panels
+    function togglePanel() {
+        document.getElementById('container').classList.toggle('right-panel-active');
+    }
+
+    // Auto-login check (cookie se)
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/cookie-login`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (response.ok) window.location.href = `${API_BASE_URL}/dashboard`;
+        } catch (error) {
+            console.log('Auto-login check:', error.message);
         }
+    });
 
-        // Check if user is already logged in via cookie
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('/auth/cookie-login', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
+    // Signup Form (New User)
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorEl = document.getElementById('signupErrorMessage');
+        const successEl = document.getElementById('signupSuccessMessage');
+        const loader = document.getElementById('signupLoading');
+        
+        errorEl.textContent = '';
+        successEl.textContent = '';
+        loader.style.display = 'block';
 
-                if (response.ok) {
-                    const data = await response.json();
-                    window.location.href = '/dashboard'; // Redirect to dashboard if logged in
-                }
-            } catch (error) {
-                console.error('Auto-login check failed:', error);
-            }
-        });
-
-        // Signup form submission
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const errorMessageElement = document.getElementById('signupErrorMessage');
-            const successMessageElement = document.getElementById('signupSuccessMessage');
-            const loadingElement = document.getElementById('signupLoading');
-
-            errorMessageElement.textContent = '';
-            successMessageElement.textContent = '';
-            loadingElement.style.display = 'block';
-
-            const formData = new URLSearchParams();
-formData.append('username', document.querySelector('#signinForm input[name="username"]').value);
-formData.append('password', document.querySelector('#signinForm input[name="password"]').value);
+        try {
             const userData = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                password: formData.get('password')
+                name: document.querySelector('#signupForm input[name="name"]').value,
+                email: document.querySelector('#signupForm input[name="email"]').value,
+                password: document.querySelector('#signupForm input[name="password"]').value
             };
 
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData),
-                    credentials: 'include'
-                });
+            const response = await fetch(`${API_BASE_URL}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
+                credentials: 'include'
+            });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    successMessageElement.textContent = 'Account created successfully! Redirecting...';
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    errorMessageElement.textContent = data.detail || 'Something went wrong';
-                }
-            } catch (error) {
-                errorMessageElement.textContent = 'Server error. Please try again.';
-                console.error('Signup error:', error);
-            } finally {
-                loadingElement.style.display = 'none';
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Signup failed');
             }
-        });
 
-        // Signin form submission
-        document.getElementById('signinForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+            successEl.textContent = 'Account created! Redirecting...';
+            setTimeout(() => {
+                window.location.href = `${API_BASE_URL}/dashboard`;
+            }, 1500);
+        } catch (error) {
+            errorEl.textContent = error.message;
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
 
-            const errorMessageElement = document.getElementById('signinErrorMessage');
-            const loadingElement = document.getElementById('signinLoading');
+    // Signin Form (Existing User)
+    document.getElementById('signinForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorEl = document.getElementById('signinErrorMessage');
+        const loader = document.getElementById('signinLoading');
+        
+        errorEl.textContent = '';
+        loader.style.display = 'block';
 
-            errorMessageElement.textContent = '';
-            loadingElement.style.display = 'block';
+        try {
+            const formData = new URLSearchParams();
+            formData.append('username', document.querySelector('#signinForm input[name="username"]').value);
+            formData.append('password', document.querySelector('#signinForm input[name="password"]').value);
 
-            const formData = new FormData(e.target);
+            const response = await fetch(`${API_BASE_URL}/token`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
 
-            try {
-                const response = await fetch('/token', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    window.location.href = '/dashboard';
-                } else {
-                    errorMessageElement.textContent = data.detail || 'Invalid credentials';
-                }
-            } catch (error) {
-                errorMessageElement.textContent = 'Server error. Please try again.';
-                console.error('Signin error:', error);
-            } finally {
-                loadingElement.style.display = 'none';
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Invalid credentials');
             }
-        });
-    </script>
+            window.location.href = `${API_BASE_URL}/dashboard`;
+        } catch (error) {
+            errorEl.textContent = error.message;
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
