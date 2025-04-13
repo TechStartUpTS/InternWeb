@@ -415,7 +415,9 @@
             successMessageElement.textContent = '';
             loadingElement.style.display = 'block';
 
-            const formData = new FormData(e.target);
+            const formData = new URLSearchParams();
+formData.append('username', document.querySelector('#signinForm input[name="username"]').value);
+formData.append('password', document.querySelector('#signinForm input[name="password"]').value);
             const userData = {
                 name: formData.get('name'),
                 email: formData.get('email'),
