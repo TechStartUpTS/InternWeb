@@ -289,8 +289,8 @@ async def linkedin_login():
 
 # Google OAuth callback endpoint
 @app.get("/auth/google/callback")
-async def google_callback(response: Response):
-    user = await google_sso.verify_and_process()
+async def google_callback(request: Request, response: Response):
+    user = await google_sso.verify_and_process(request)
 
     # Check if user already exists; if not, create a new user record
     db_user = get_user(email=user.email)
@@ -326,8 +326,8 @@ async def google_callback(response: Response):
 
 # GitHub OAuth callback endpoint
 @app.get("/auth/github/callback")
-async def github_callback(response: Response):
-    user = await github_sso.verify_and_process()
+async def github_callback(request: Request, response: Response):
+    user = await github_sso.verify_and_process(request)
     db_user = get_user(email=user.email)
     if not db_user:
         # Ensure the auth_provider is set to "github" (not "google")
@@ -360,8 +360,8 @@ async def github_callback(response: Response):
 
 # LinkedIn OAuth callback endpoint
 @app.get("/auth/linkedin/callback")
-async def linkedin_callback(response: Response):
-    user = await linkedin_sso.verify_and_process()
+async def linkedin_callback(request: Request, response: Response):
+    user = await linkedin_sso.verify_and_process(request)
     db_user = get_user(email=user.email)
     if not db_user:
         # Ensure the auth_provider is set to "linkedin" (not "google")
