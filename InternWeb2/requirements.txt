@@ -6,3 +6,4 @@ passlib[bcrypt]
 python-dotenv
 fastapi-sso
 email-validator
+python-multipart
