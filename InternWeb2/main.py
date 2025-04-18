@@ -130,12 +130,23 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(request: Request):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Not authenticated",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    # Try to get token from Authorization header
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        # Try to get token from query parameters
+        token = request.query_params.get("access_token")
+        if not token:
+            raise credentials_exception
+    else:
+        token = auth_header.split(" ")[1]
+    
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -156,16 +167,24 @@ async def read_index():
     return FileResponse("static/index.html")
 
 @app.get("/select_role")
-async def select_role_page(current_user: User = Depends(get_current_user)):
-    if current_user.role:
-        return RedirectResponse(url="/home", status_code=303)
-    return FileResponse("static/select_role.html")
+async def select_role_page(request: Request):
+    try:
+        current_user = await get_current_user(request)
+        if current_user.role:
+            return RedirectResponse(url="/home", status_code=303)
+        return FileResponse("static/select_role.html")
+    except HTTPException as e:
+        if e.status_code == 401:
+            return RedirectResponse(url="/", status_code=303)
+        raise e
 
 @app.post("/api/set_role")
 async def set_role(
     role_data: RoleSelection,
-    current_user: User = Depends(get_current_user)
+    request: Request
 ):
+    current_user = await get_current_user(request)
+    
     if current_user.role:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -180,7 +199,8 @@ async def set_role(
     return {"next": f"/{role_data.role}_profile"}
 
 @app.get("/intern_profile")
-async def intern_profile_page(current_user: User = Depends(get_current_user)):
+async def intern_profile_page(request: Request):
+    current_user = await get_current_user(request)
     if current_user.role != "intern":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -189,7 +209,8 @@ async def intern_profile_page(current_user: User = Depends(get_current_user)):
     return FileResponse("static/intern_profile.html")
 
 @app.get("/startup_profile")
-async def startup_profile_page(current_user: User = Depends(get_current_user)):
+async def startup_profile_page(request: Request):
+    current_user = await get_current_user(request)
     if current_user.role != "startup":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -198,7 +219,8 @@ async def startup_profile_page(current_user: User = Depends(get_current_user)):
     return FileResponse("static/startup_profile.html")
 
 @app.get("/home")
-async def home_page(current_user: User = Depends(get_current_user)):
+async def home_page(request: Request):
+    current_user = await get_current_user(request)
     if not current_user.role:
         return RedirectResponse(url="/select_role", status_code=303)
     return HTMLResponse(
