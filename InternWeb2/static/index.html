@@ -211,73 +211,82 @@
             document.getElementById('signin-error').textContent = '';
         }
 
-        async function handleSignup(event) {
-            event.preventDefault();
-            const errorEl = document.getElementById('signup-error');
-            const form = event.target;
-
+        async function handleSignup(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
             try {
                 const response = await fetch('/signup', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',  // Include cookies in the request
                     body: JSON.stringify({
-                        name: form.name.value,
-                        email: form.email.value,
-                        password: form.password.value
+                        email: formData.get('email'),
+                        password: formData.get('password'),
+                        name: formData.get('name')
                     })
                 });
 
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('token', data.access_token);
-                    window.location.href = data.redirect_url;
-                } else {
-                    errorEl.textContent = data.detail || 'Signup failed';
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Signup failed');
                 }
+
+                const data = await response.json();
+                window.location.href = data.redirect_url;
             } catch (error) {
-                errorEl.textContent = 'An error occurred. Please try again.';
+                console.error('Signup error:', error);
+                document.getElementById('signup-error').textContent = error.message;
+                document.getElementById('signup-error').style.display = 'block';
             }
-            return false;
         }
 
-        async function handleSignin(event) {
-            event.preventDefault();
-            const errorEl = document.getElementById('signin-error');
-            const form = event.target;
-
+        async function handleSignin(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
             try {
-                const formData = new URLSearchParams();
-                formData.append('username', form.email.value);
-                formData.append('password', form.password.value);
-
                 const response = await fetch('/token', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
                     },
-                    body: formData
+                    credentials: 'include',  // Include cookies in the request
+                    body: new URLSearchParams({
+                        username: formData.get('email'),
+                        password: formData.get('password')
+                    })
                 });
 
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('token', data.access_token);
-                    window.location.href = data.redirect_url;
-                } else {
-                    errorEl.textContent = data.detail || 'Invalid credentials';
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Login failed');
                 }
+
+                const data = await response.json();
+                window.location.href = data.redirect_url;
             } catch (error) {
-                errorEl.textContent = 'An error occurred. Please try again.';
+                console.error('Login error:', error);
+                document.getElementById('login-error').textContent = error.message;
+                document.getElementById('login-error').style.display = 'block';
             }
-            return false;
         }
 
         // Handle OAuth redirects
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('access_token');
-        if (token) {
-            localStorage.setItem('token', token);
-            const redirectUrl = urlParams.get('redirect_url') || '/home';
-            window.location.href = redirectUrl;
+        if (window.location.hash) {
+            const params = new URLSearchParams(window.location.hash.substring(1));
+            const token = params.get('access_token');
+            if (token) {
+                // Set token in cookie
+                document.cookie = `access_token=${token}; path=/; secure; samesite=Lax`;
+                window.location.href = '/select_role';
+            }
         }
 
         // Check if user is already logged in
