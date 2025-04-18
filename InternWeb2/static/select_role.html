@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASIFY - Select Role</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f6f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-weight: bold;
+            margin: 0;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+            text-align: center;
+        }
+
+        p {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin: 1.25rem 0;
+            color: #666;
+            text-align: center;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            width: 100%;
+        }
+
+        .role-btn {
+            flex: 1;
+            background-color: #fff;
+            border: 2px solid #ff4b2b;
+            color: #ff4b2b;
+            padding: 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .role-btn:hover {
+            background-color: #ff4b2b;
+            color: white;
+        }
+
+        .role-btn img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .error-message {
+            color: #ff4b2b;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #ff4b2b;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Choose Your Role</h1>
+        <p>Select how you want to join EASIFY</p>
+        <div class="role-buttons">
+            <button class="role-btn" onclick="selectRole('intern')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Intern">
+                Join as Intern
+            </button>
+            <button class="role-btn" onclick="selectRole('startup')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" alt="Startup">
+                Join as Startup
+            </button>
+        </div>
+        <div id="error-message" class="error-message"></div>
+        <div id="loading" class="loading"></div>
+    </div>
+
+    <script>
+        async function selectRole(role) {
+            const errorEl = document.getElementById('error-message');
+            const loadingEl = document.getElementById('loading');
+            const buttons = document.querySelectorAll('.role-btn');
+            
+            errorEl.textContent = '';
+            loadingEl.style.display = 'block';
+            buttons.forEach(btn => btn.disabled = true);
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await fetch('/api/set_role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = data.next;
+                } else {
+                    throw new Error(data.detail || 'Failed to set role');
+                }
+            } catch (error) {
+                errorEl.textContent = error.message;
+                if (error.message === 'No authentication token found') {
+                    window.location.href = '/';
+                }
+            } finally {
+                loadingEl.style.display = 'none';
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/';
+        } else {
+            fetch('/home', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/home';
+                }
+            }).catch(() => {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+            });
+        }
+    </script>
+</body>
+</html>

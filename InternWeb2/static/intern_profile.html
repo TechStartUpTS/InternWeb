@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Creator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Premium color scheme with dark blue-gray & gold accents */
+  --background: #1A1F2C;
+  --foreground: #F9F7F7;
+  --card: #111824;
+  --card-foreground: #F9F7F7;
+  --primary: #334155;
+  --primary-hover: #1E293B;
+  --border: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --error: #DC2626;
+  --success: #10B981;
+  --radius: 0.6rem;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --accent: #E6A55E;
+  --accent-hover: #D89144;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 2rem;
+  letter-spacing: -0.3px;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+header {
+  padding: 1rem 0;
+  background-color: rgba(17, 24, 39, 0.95);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+nav a {
+  color: var(--foreground);
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 0.25rem;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+
+nav a:hover::after,
+nav a.active::after {
+  width: 100%;
+}
+
+nav a.active {
+  color: var(--accent);
+}
+
+main {
+  flex: 1;
+  padding: 4rem 0;
+}
+
+.intro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.intro h1 {
+  background: linear-gradient(90deg, var(--accent) 0%, #F3C88C 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+/* Form Container */
+.form-container {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* Progress Bar */
+.progress-container {
+  padding-top: 1.5rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.steps {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.step {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  position: relative;
+  flex: 1;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  color: var(--accent);
+  font-weight: 600;
+  transform: scale(1.05);
+}
+
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+  height: 3px;
+  width: 0;
+  transition: width 0.5s ease;
+  border-radius: 3px;
+}
+
+.progress {
+  background: linear-gradient(90deg, var(--accent) 0%, #F3C88C 100%);
+  height: 100%;
+  width: 0;
+  transition: width 0.5s ease;
+  border-radius: 3px;
+}
+
+/* Form Steps */
+.form-step {
+  display: none;
+  padding: 2.5rem;
+}
+
+.form-step.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-step h2 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.form-step p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2rem;
+}
+
+/* Form Controls */
+.form-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 2.5rem;
+  border-top: 1px solid var(--border);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group.half {
+  flex: 1;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(230, 165, 94, 0.2);
+}
+
+input.error, select.error, textarea.error {
+  border-color: var(--error);
+}
+
+input[type="file"] {
+  padding: 0.5rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox input {
+  width: auto;
+}
+
+.checkbox label {
+  margin-bottom: 0;
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Social Inputs */
+.social-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.social-input span {
+  min-width: 80px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Skill Input */
+.skill-input-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skill-input-container input {
+  flex: 1;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent) 0%, #F3C88C 100%);
+  color: #111824;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 10px rgba(230, 165, 94, 0.2);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 15px rgba(230, 165, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(230, 165, 94, 0.2);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: rgba(230, 165, 94, 0.1);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(230, 165, 94, 0.2);
+  box-shadow: 0 4px 8px rgba(230, 165, 94, 0.1);
+}
+
+.btn-remove {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.btn-remove:hover {
+  background-color: rgba(220, 38, 38, 0.2);
+}
+
+/* Education & Experience Entries */
+.education-entry, .experience-entry {
+  position: relative;
+  padding: 1rem 0;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 1.5rem 0 2rem;
+}
+
+/* Skills */
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1rem 0 2rem;
+}
+
+.skill-tag {
+  background-color: rgba(230, 165, 94, 0.15);
+  color: var(--accent);
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(230, 165, 94, 0.3);
+  position: relative;
+}
+
+.remove-skill {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 0.8;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.remove-skill:hover {
+  opacity: 1;
+}
+
+/* Footer */
+footer {
+  background-color: rgba(17, 24, 39, 0.95);
+  padding: 2rem 0;
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  max-width: 350px;
+  transform: translateY(100px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.toast-content {
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-weight: 500;
+}
+
+.toast.error .toast-content {
+  background-color: var(--error);
+}
+
+.toast.success .toast-content {
+  background-color: var(--success);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .steps {
+    display: none; /* Progress steps ko mobile par hide karein */
+  }
+  .form-step {
+    padding: 1.5rem; /* Mobile par form step padding kam karein */
+  }
+  .form-controls {
+    padding: 1rem 1.5rem; /* Mobile par form controls padding kam karein */
+  }
+  .form-row {
+    flex-direction: column; /* Form row ko mobile par stack karein */
+    gap: 0;
+  }
+  nav ul {
+    gap: 1rem; /* Mobile par navigation links ke beech gap kam karein */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  .footer-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  .footer-links {
+    margin-top: 1rem;
+    justify-content: center;
+  }
+  .btn-primary, .btn-outline {
+    padding: 0.75rem 1rem; /* Chhote screens par buttons ki padding kam karein */
+  }
+  .intro h1 {
+    font-size: 2rem; /* Chhote screens par heading ka size kam karein */
+  }
+  .form-step {
+    padding: 1.25rem; /* Chhote screens par form step padding aur kam karein */
+  }
+}
+
+/* Select dropdown options ke liye styles */
+select option {
+  color: black;
+  background-color: white;
+}
+</style>
+</head>
+<body>
+  <main>
+    <div class="container">
+      <div class="intro">
+        <h1>Create Your Professional Profile</h1>
+        <p>Build a comprehensive profile to showcase your professional journey and expertise.</p>
+      </div>
+
+      <div class="form-container">
+        <div class="progress-container">
+          <div class="steps">
+            <div class="step active" data-step="1">Personal Info</div>
+            <div class="step" data-step="2">Professional Details</div>
+            <div class="step" data-step="3">Education</div>
+            <div class="step" data-step="4">Skills</div>
+            <div class="step" data-step="5">Contact Info</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 20%"></div>
+          </div>
+        </div>
+
+        <div class="form-step active" data-step="1">
+          <h2>Personal Information</h2>
+          <p>Start with the basics. Tell us about yourself.</p>
+          <div class="form-group">
+            <label for="profilePicture">Profile Picture</label>
+            <input type="file" id="profilePicture" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label for="fullname">Full Name*</label>
+            <input type="text" id="fullname" required autocomplete="name">
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="profession">Profession*</label>
+              <input type="text" id="profession" required autocomplete="organization-title">
+            </div>
+            <div class="form-group half">
+              <label for="location">Location</label>
+              <input type="text" id="location" placeholder="City, Country" autocomplete="address-level2">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bio">Bio/Summary</label>
+            <textarea id="bio" rows="4" placeholder="A brief introduction about yourself..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="2">
+          <h2>Professional Details</h2>
+          <p>Tell us about your professional background.</p>
+          <div class="form-group">
+            <label for="headline">Professional Headline*</label>
+            <input type="text" id="headline" placeholder="e.g. Senior Software Engineer" required autocomplete="organization-title">
+          </div>
+          <div class="form-group">
+            <label for="yearsExperience">Years of Experience</label>
+            <input type="number" id="yearsExperience" min="0" max="50">
+          </div>
+          <div class="form-group">
+            <label for="industry">Industry</label>
+            <select id="industry">
+              <option value="">Select an industry</option>
+              <option value="technology">Technology</option>
+              <option value="finance">Finance</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="marketing">Marketing</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="3">
+          <h2>Education</h2>
+          <p>Share your educational background.</p>
+          <div id="education-entries">
+            </div>
+          <button type="button" class="btn-secondary" id="add-education">Add Another Education</button>
+        </div>
+
+        <div class="form-step" data-step="4">
+          <h2>Skills</h2>
+          <p>Showcase your key skills.</p>
+          <div class="form-group">
+            <label for="skill-input">Key Skills</label>
+            <div class="skill-input-container">
+                <input type="text" id="skill-input" placeholder="Enter a skill and press Add or Enter">
+                <button type="button" class="btn-secondary" id="add-skill">Add</button>
+              </div>
+            <div id="skills-display-container" class="skills-container">
+              </div>
+          </div>
+        </div>
+
+        <div class="form-step" data-step="5">
+          <h2>Contact Information</h2>
+          <p>Provide your contact details.</p>
+          <div class="form-group">
+            <label for="email">Email*</label>
+            <input type="email" id="email" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label for="website">Website/Portfolio</label>
+            <input type="url" id="website" placeholder="https://example.com" autocomplete="url">
+          </div>
+          <div class="form-group">
+            <label>Social Links</label>
+            <div class="social-input">
+              <span>LinkedIn:</span>
+              <input type="url" id="linkedin" placeholder="https://linkedin.com/in/..." autocomplete="url">
+            </div>
+            <div class="social-input">
+              <span>Twitter:</span>
+              <input type="url" id="twitter" placeholder="https://twitter.com/..." autocomplete="url">
+            </div>
+            <div class="social-input">
+              <span>GitHub:</span>
+              <input type="url" id="github" placeholder="https://github.com/..." autocomplete="url">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-controls">
+          <button type="button" class="btn-outline" id="prev-btn" disabled>Previous</button>
+          <button type="button" class="btn-primary" id="next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">© 2025 ProfilePro. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast">
+    <div class="toast-content"></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Form elements ko select karna
+  const formSteps = document.querySelectorAll('.form-step');
+  const nextBtn = document.getElementById('next-btn');
+  const prevBtn = document.getElementById('prev-btn');
+  const progressBar = document.querySelector('.progress');
+  const stepsContainer = document.querySelector('.steps');
+  const skillInput = document.getElementById('skill-input');
+  const addSkillBtn = document.getElementById('add-skill');
+  const skillsDisplayContainer = document.getElementById('skills-display-container');
+  const educationEntriesContainer = document.getElementById('education-entries');
+  const addEducationBtn = document.getElementById('add-education');
+  const profilePictureInput = document.getElementById('profilePicture'); // Select the profile picture input
+
+  let currentStep = 1;
+  let educationCounter = 0; // Start counter from 0 for initial entry or loaded data
+
+  // Function to load data from localStorage
+  function loadProfileData() {
+    const profileDataString = localStorage.getItem('profileData');
+    if (profileDataString) {
+      try {
+        const data = JSON.parse(profileDataString);
+        console.log("Loading data from localStorage:", data); // Debug log
+
+        // Populate Personal Info
+        if (data.personal) {
+          document.getElementById('fullname').value = data.personal.fullname || '';
+          document.getElementById('profession').value = data.personal.profession || '';
+          document.getElementById('location').value = data.personal.location || '';
+          document.getElementById('bio').value = data.personal.bio || '';
+          // Profile picture loading is handled separately as it's a file input
+          // We can't programmatically set a file input's value for security reasons.
+          // The preview page will use the stored data URL.
+        }
+
+        // Populate Professional Details
+        if (data.professional) {
+          document.getElementById('headline').value = data.professional.headline || '';
+          document.getElementById('yearsExperience').value = data.professional.yearsExperience || '';
+          document.getElementById('industry').value = data.professional.industry || '';
+
+          // Populate Skills
+          if (data.professional.skills && data.professional.skills.length > 0) {
+            skillsDisplayContainer.innerHTML = ''; // Clear existing skills
+            data.professional.skills.forEach(skill => {
+              if (skill && skill.trim()) { // Ensure skill is not empty
+                 addSkill(skill.trim()); // Add skill using the existing function
+              }
+            });
+          }
+        }
+
+        // Populate Education
+        if (data.education && data.education.length > 0) {
+           educationEntriesContainer.innerHTML = ''; // Clear existing entries
+           educationCounter = 0; // Reset counter before loading
+           data.education.forEach(edu => {
+              addEducationEntry(edu); // Add education entry with existing data
+           });
+        } else {
+             // If no education data, add one empty entry by default
+             addEducationEntry();
+        }
+
+      } catch (e) {
+        console.error("Error loading or parsing data from localStorage:", e);
+        showToast('Could not load saved profile data.', 'error');
+        // If loading fails, start with a clean form (handled by initial showStep(1) and default education entry)
+      }
+    } else {
+        // If no data in localStorage, add one empty education entry by default
+        addEducationEntry();
+    }
+  }
+
+
+  // Progress bar ko update karne ka function
+  function updateProgressBar() {
+    // Progress ko 5 steps ke basis par calculate karna
+    const progressPercentage = ((currentStep - 1) / (formSteps.length -1)) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+  }
+
+  // Active step indicator ko update karne ka function
+  function updateActiveStepIndicator() {
+      const steps = stepsContainer?.querySelectorAll('.step'); // Optional chaining agar stepsContainer nahi milta
+      if (!steps) return; // Agar steps nahi hain toh function se bahar
+      steps.forEach((step, index) => {
+          // Current step tak ke sabhi steps ko active mark karna
+          if (index < currentStep) {
+              step.classList.add('active');
+          } else {
+              step.classList.remove('active');
+          }
+          // Specifically current step ko highlight karna (optional styling)
+          if (index === currentStep - 1) {
+             step.style.fontWeight = 'bold'; // Example styling
+          } else {
+             step.style.fontWeight = 'normal';
+          }
+      });
+  }
+
+  // Specific step ko show karne ka function
+  function showStep(stepNumber) {
+    formSteps.forEach(step => step.classList.remove('active')); // Sabhi steps ko hide karna
+    formSteps[stepNumber - 1].classList.add('active'); // Current step ko show karna
+    currentStep = stepNumber; // Current step number update karna
+    updateProgressBar(); // Progress bar update karna
+    updateActiveStepIndicator(); // Step indicator update karna
+
+    // Previous button ko enable/disable karna
+    prevBtn.disabled = currentStep === 1;
+
+    // Next button ka text change karna (agar last step hai toh 'Create Profile')
+    if (currentStep === formSteps.length) {
+      nextBtn.textContent = 'Create Profile';
+    } else {
+      nextBtn.textContent = 'Next';
+    }
+  }
+
+  // Agle step par jaane ka function
+  function nextStep() {
+    if (validateCurrentStep()) { // Current step ko validate karna
+      if (currentStep < formSteps.length) {
+        // Agar last step nahi hai, toh agle step par jaana
+        showStep(currentStep + 1);
+      } else {
+        // Agar last step hai, toh profile create karna (data save karke redirect karna)
+        console.log("Last step reached. Calling saveProfileDataAndRedirect..."); // DEBUG LOG
+        saveProfileDataAndRedirect();
+      }
+    } else {
+      // Agar validation fail hota hai, toh error message show karna
+      showToast('Please fill in all required fields.', 'error');
+    }
+  }
+
+  // Pichhle step par jaane ka function
+  function prevStep() {
+    if (currentStep > 1) {
+      showStep(currentStep - 1); // Pichhle step par jaana
+    }
+  }
+
+  // Current step ke required fields ko validate karne ka function
+  function validateCurrentStep() {
+    const currentFormStep = formSteps[currentStep - 1];
+    const inputs = currentFormStep.querySelectorAll('input[required], textarea[required], select[required]');
+    let isValid = true;
+
+    inputs.forEach(input => {
+      // Input value ko trim karke check karna agar woh empty hai
+      if (!input.value.trim()) {
+        input.classList.add('error'); // Error class add karna
+        isValid = false; // Validation status ko false set karna
+      } else {
+        input.classList.remove('error'); // Error class remove karna agar valid hai
+      }
+    });
+     console.log(`Step ${currentStep} validation result: ${isValid}`); // DEBUG LOG
+    return isValid; // Validation result return karna
+  }
+
+  // Naya skill add karne ka function (can accept a skill string to pre-fill)
+  function addSkill(skillText = '') {
+    const skillToAdd = skillText || skillInput.value.trim(); // Use provided text or input value
+    if (skillToAdd) { // Check karna agar input empty nahi hai
+      const skillTag = document.createElement('div');
+      skillTag.classList.add('skill-tag');
+      skillTag.textContent = skillToAdd; // Use skillToAdd
+
+      const removeSkillBtn = document.createElement('span');
+      removeSkillBtn.classList.add('remove-skill');
+      removeSkillBtn.innerHTML = '&times;'; // '×' symbol use karna
+      removeSkillBtn.setAttribute('aria-label', 'Remove skill'); // Accessibility ke liye label
+      removeSkillBtn.onclick = () => skillTag.remove(); // Click par tag remove karna
+
+      skillTag.appendChild(removeSkillBtn);
+      skillsDisplayContainer.appendChild(skillTag); // Tag ko container mein add karna
+      if (!skillText) { // Only clear input if adding from the input field
+        skillInput.value = ''; // Input field ko clear karna
+        skillInput.focus(); // Focus input field par wapas set karna
+      }
+    } else if (!skillText) { // Only show toast if adding from input and it's empty
+      showToast('Please enter a skill.', 'error'); // Agar input empty hai toh message show karna
+    }
+  }
+
+  // Skill input mein Enter key press handle karna
+  skillInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Default form submission rokna
+      addSkill(); // Skill add karna
+    }
+  });
+
+  // Naya education entry add karne ka function (can accept data to pre-fill)
+  function addEducationEntry(data = {}) {
+    const newEntry = document.createElement('div');
+    newEntry.classList.add('education-entry');
+    const entryId = educationCounter++; // Unique ID generate karna
+
+    newEntry.innerHTML = `
+      ${entryId > 0 ? '<div class="divider"></div>' : ''} <div class="form-group">
+        <label for="degree-${entryId}">Degree/Certification*</label>
+        <input type="text" id="degree-${entryId}" class="degree-input" value="${data.degree || ''}" required>
+      </div>
+      <div class="form-group">
+        <label for="institution-${entryId}">Institution*</label>
+        <input type="text" id="institution-${entryId}" class="institution-input" value="${data.institution || ''}" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="startDate-${entryId}">Start Date</label>
+          <input type="date" id="startDate-${entryId}" class="startDate-input" value="${data.startDate || ''}">
+        </div>
+        <div class="form-group half">
+          <label for="endDate-${entryId}">End Date</label>
+          <input type="date" id="endDate-${entryId}" class="endDate-input" value="${data.endDate || ''}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="educationDescription-${entryId}">Description</label>
+        <textarea id="educationDescription-${entryId}" class="educationDescription-input" rows="3">${data.description || ''}</textarea>
+      </div>
+      ${entryId > 0 ? '<button type="button" class="btn-remove remove-education">Remove This Education</button>' : ''} `;
+
+    // Add remove button event listener if it exists
+    const removeButton = newEntry.querySelector('.remove-education');
+    if (removeButton) {
+        removeButton.addEventListener('click', () => newEntry.remove());
+    }
+
+    educationEntriesContainer.appendChild(newEntry); // Nayi entry ko container mein add karna
+  }
+
+
+  // Profile data ko gather karke localStorage mein save karna aur preview page par redirect karna
+  function saveProfileDataAndRedirect() {
+    console.log("Inside saveProfileDataAndRedirect function."); // DEBUG LOG
+
+    // Gather Profile Picture data
+    let profilePictureDataUrl = '';
+    const file = profilePictureInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        profilePictureDataUrl = reader.result; // Store as Data URL
+
+        // Continue saving other data after reading the file
+        saveOtherProfileData(profilePictureDataUrl);
+      };
+      reader.onerror = function(error) {
+        console.error("Error reading file:", error);
+        showToast('Error reading profile picture file.', 'error');
+        // Continue saving other data even if file reading fails
+        saveOtherProfileData('');
+      };
+      reader.readAsDataURL(file); // Read file as Data URL
+    } else {
+      // If no file selected, check if there was a previously saved picture
+      const existingData = localStorage.getItem('profileData');
+      if (existingData) {
+          try {
+              const parsedData = JSON.parse(existingData);
+              profilePictureDataUrl = parsedData.personal?.profilePicture || '';
+          } catch (e) {
+              console.error("Error parsing existing data for profile picture:", e);
+              profilePictureDataUrl = ''; // Reset if parsing fails
+          }
+      }
+      // Save other data immediately if no new file is selected
+      saveOtherProfileData(profilePictureDataUrl);
+    }
+  }
+
+  // Helper function to save the rest of the profile data
+  function saveOtherProfileData(profilePictureDataUrl) {
+       // Skills ko collect karna
+    const skills = Array.from(skillsDisplayContainer.querySelectorAll('.skill-tag'))
+                        .map(tag => tag.firstChild.textContent.trim()) // Sirf text content lena
+                        .filter(skill => skill); // Filter out empty strings
+
+    // Education entries ko collect karna
+    const educationData = Array.from(educationEntriesContainer.querySelectorAll('.education-entry')).map(entry => ({
+      degree: entry.querySelector('.degree-input').value.trim(),
+      institution: entry.querySelector('.institution-input').value.trim(),
+      startDate: entry.querySelector('.startDate-input').value,
+      endDate: entry.querySelector('.endDate-input').value,
+      description: entry.querySelector('.educationDescription-input').value.trim(),
+    })).filter(edu => edu.degree || edu.institution); // Filter out empty education entries
+
+    // Sabhi profile data ko ek object mein collect karna
+    const profileData = {
+      personal: {
+        fullname: document.getElementById('fullname').value.trim(),
+        profession: document.getElementById('profession').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        bio: document.getElementById('bio').value.trim(),
+        profilePicture: profilePictureDataUrl, // Include profile picture data URL
+      },
+      professional: {
+        headline: document.getElementById('headline').value.trim(),
+        yearsExperience: document.getElementById('yearsExperience').value.trim(),
+        industry: document.getElementById('industry').value,
+        skills: skills, // Collected skills array
+      },
+      education: educationData, // Collected education array
+      contact: {
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        website: document.getElementById('website').value.trim(),
+        linkedin: document.getElementById('linkedin').value.trim(),
+        twitter: document.getElementById('twitter').value.trim(),
+        github: document.getElementById('github').value.trim(),
+      },
+    };
+    console.log("Profile Data Collected for Saving:", profileData); // DEBUG LOG
+
+    try {
+      // Profile data ko JSON string mein convert karke localStorage mein save karna
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+      console.log("Profile data saved to localStorage."); // DEBUG LOG
+      // Success message show karna
+      showToast('Profile data saved. Redirecting to preview...', 'success');
+      // Thodi der baad preview page par redirect karna
+      setTimeout(() => {
+        console.log("Attempting to redirect to preview.html..."); // DEBUG LOG
+        try {
+            window.location.href = 'preview.html'; // Preview page ka naam
+            // Agar upar wali line execute hoti hai, toh yeh log shayad na dikhe
+            console.log("Redirection command successfully issued to preview.html.");
+        } catch (redirectError) {
+            // Agar redirection mein error aata hai
+            console.error("Error occurred during redirection:", redirectError);
+            showToast('Error redirecting to preview page.', 'error');
+        }
+      }, 1500); // 1.5 seconds ka delay
+    } catch (storageError) {
+      // Agar localStorage mein save karte waqt error aata hai
+      console.error("Error saving profile data to localStorage:", storageError);
+      showToast('Could not save profile data. Please try again.', 'error');
+    }
+  }
+
+
+  // Toast notification show karne ka function
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastContent = toast.querySelector('.toast-content');
+    if (!toast || !toastContent) return; // Agar elements nahi milte toh return
+
+    toast.className = 'toast show ' + type; // Type ke hisaab se class set karna
+    toastContent.textContent = message; // Message set karna
+
+    // 3 seconds ke baad toast ko hide karna
+    setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
+
+  // Event listeners ko attach karna
+  nextBtn.addEventListener('click', nextStep);
+  prevBtn.addEventListener('click', prevStep);
+  addSkillBtn.addEventListener('click', () => addSkill()); // Call addSkill without arguments for input field
+  addEducationBtn.addEventListener('click', () => addEducationEntry()); // Call addEducationEntry without arguments for new empty entry
+
+  // Initial setup: Load data and show the first step
+  loadProfileData();
+  showStep(1);
+});
+</script>
+</body>
+</html>

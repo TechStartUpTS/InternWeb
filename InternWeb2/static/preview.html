@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Same color scheme as index.html */
+  --background: #1A1F2C;
+  --foreground: #F9F7F7;
+  --card: #111824; /* Card background for preview */
+  --card-foreground: #F9F7F7;
+  --border: rgba(255, 255, 255, 0.1);
+  --radius: 0.6rem;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --accent: #E6A55E;
+  --accent-hover: #D89144;
+  --error: #DC2626; /* Error color */
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0; /* Body mein upar neeche padding */
+}
+
+/* Layout */
+.container {
+  /* कंप्यूटर पर प्रीव्यू की चौड़ाई कम करने के लिए max-width को 700px किया गया */
+  max-width: 700px; /* Thoda wider container preview ke liye */
+  width: 100%; /* Ensure container takes width */
+  margin: 0 auto;
+  padding: 0 1rem;
+  flex: 1; /* Container ko available space lene dena */
+  display: flex; /* Flex container banana */
+  flex-direction: column; /* Content ko vertically align karna */
+}
+
+/* Header for Preview Page */
+.preview-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.preview-header h1 {
+  font-size: 2.2rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.preview-header p {
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Profile Preview Box Styling */
+.profile-preview {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem; /* Neeche margin, future nav bar ke liye adjust ho sakta hai */
+  flex-grow: 1; /* Preview box ko available vertical space lene dena */
+}
+
+/* Personal Info Section in Preview */
+.preview-personal {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border); /* Separator */
+}
+
+.preview-pic {
+  flex-shrink: 0;
+}
+
+/* Profile Picture Styling */
+.profile-picture {
+  width: 100px; /* Thoda chhota size */
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover; /* Ensure image covers the area without distortion */
+  border: 2px solid var(--accent);
+}
+
+/* Placeholder for image */
+.placeholder-img {
+  width: 100px; /* Thoda chhota size */
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+
+/* Name and Title in Preview */
+.preview-name h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.8rem; /* Thoda bada naam */
+  color: var(--foreground);
+}
+
+.preview-name .profession { /* Profession ke liye specific class */
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.preview-name .location { /* Location ke liye specific class */
+   color: rgba(255, 255, 255, 0.7);
+   font-size: 0.9rem;
+}
+
+/* General Preview Section Item Styling */
+.preview-section-item {
+  margin-bottom: 2.5rem;
+}
+.preview-section-item:last-child {
+    margin-bottom: 0; /* Section ke last item ke neeche margin hatana */
+}
+
+
+/* Section Heading Styling */
+.preview-section-item h3 {
+  font-size: 1.25rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* Individual Preview Item (like education entry) */
+.preview-item {
+  margin-bottom: 1.5rem;
+}
+.preview-item:last-child {
+    margin-bottom: 0; /* Item list ke last item ke neeche margin hatana */
+}
+
+.preview-item h4 { /* Degree/Title */
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.preview-item .institution { /* Institution name */
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.25rem;
+}
+
+.preview-item .date { /* Date range */
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-item p:not(.institution):not(.date) { /* Description or other details */
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem; /* Paragraphs ke beech thoda gap */
+}
+.preview-item p:last-child {
+    margin-bottom: 0;
+}
+
+
+/* Skills Container Styling */
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem; /* Heading ke baad thoda gap */
+}
+
+/* Skill Tag Styling (same as form) */
+.skill-tag {
+  background-color: rgba(230, 165, 94, 0.15);
+  color: var(--accent);
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(230, 165, 94, 0.3);
+}
+
+/* Contact Info Styling */
+.contact-info p {
+    margin-bottom: 0.5rem; /* Contact items ke beech gap */
+}
+.contact-info p strong {
+    color: rgba(255, 255, 255, 0.8); /* Label ko thoda halka dikhana */
+    min-width: 80px; /* Consistent alignment ke liye */
+    display: inline-block;
+}
+.contact-info a {
+    color: var(--accent); /* Links ko accent color dena */
+}
+.contact-info a:hover {
+    color: var(--accent-hover);
+}
+
+
+/* Social Links Styling */
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem; /* Contact info ke baad thoda gap */
+}
+
+.social-links a {
+  color: var(--accent);
+  padding: 0.35rem 0.85rem;
+  background-color: rgba(230, 165, 94, 0.15);
+  border-radius: 9999px;
+  border: 1px solid rgba(230, 165, 94, 0.3);
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.social-links a:hover {
+  background-color: rgba(230, 165, 94, 0.25);
+  color: var(--accent-hover);
+}
+
+/* Divider Line */
+.divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 1.5rem 0; /* Items ke beech divider */
+}
+
+/* Edit Button Styling */
+.edit-controls {
+  text-align: center; /* Button ko center mein rakhna */
+  margin-top: 1rem; /* Preview box ke baad thoda gap */
+  padding-bottom: 1rem; /* Neeche padding, nav bar ke liye adjust ho sakta hai */
+}
+
+.btn-outline { /* Same style as index.html */
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Message for no data */
+#no-data-message {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 3rem;
+}
+
+/* Responsive Design Adjustments for Preview Page */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem 0; /* Mobile par body padding kam */
+  }
+  .container {
+     /* Mobile par full width lena, side padding kam karna */
+     padding: 0 0.75rem;
+     /* Max-width ko adjust karna taki zyada width le mobile par */
+     max-width: 95%;
+  }
+  .profile-preview {
+    padding: 1.5rem; /* Mobile par preview padding kam */
+    /* Neeche margin kam karna mobile par, nav bar ke liye */
+    margin-bottom: 1rem;
+  }
+  .preview-personal {
+    flex-direction: column; /* Personal info ko stack karna */
+    align-items: flex-start; /* Items ko left align karna */
+    gap: 1rem; /* Gap kam karna */
+    text-align: left; /* Text ko left align karna */
+  }
+  .preview-pic {
+      align-self: center; /* Image ko center mein rakhna */
+      margin-bottom: 1rem;
+  }
+   .placeholder-img, .profile-picture {
+       width: 80px;
+       height: 80px;
+   }
+   .preview-name h2 {
+       font-size: 1.5rem; /* Mobile par naam ka size kam */
+   }
+   .preview-name .profession {
+       font-size: 1rem; /* Mobile par profession ka size kam */
+   }
+   .preview-section-item h3 {
+       font-size: 1.1rem; /* Mobile par section heading ka size kam */
+   }
+   .edit-controls {
+       padding-bottom: 0.5rem; /* Mobile par neeche padding aur kam */
+   }
+}
+
+@media (max-width: 480px) {
+  .container {
+      max-width: 100%; /* Chhote screen par full width */
+      padding: 0 0.5rem; /* Padding aur kam */
+  }
+  .profile-preview {
+    padding: 1rem; /* Chhote screens par padding aur kam */
+  }
+  .btn-outline {
+    padding: 0.6rem 1.2rem; /* Chhote screens par button padding kam */
+    font-size: 0.9rem;
+  }
+  .preview-header h1 {
+      font-size: 1.8rem;
+  }
+  .preview-personal {
+      gap: 0.5rem; /* Personal info mein gap aur kam */
+      padding-bottom: 1rem; /* Separator ke upar padding kam */
+      margin-bottom: 1.5rem; /* Section ke neeche margin kam */
+  }
+  .preview-section-item {
+      margin-bottom: 1.5rem; /* Sections ke beech margin kam */
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="preview-header">
+      <h1>Profile Preview</h1>
+      <p>Here's a preview of the profile you created. Review the details below.</p>
+    </div>
+
+    <div id="profile-preview-content" class="profile-preview">
+      <p>Loading profile data...</p>
+    </div>
+
+     <div id="no-data-message" style="display: none;">
+        <p>Could not load profile data. Please go back and try creating the profile again.</p>
+     </div>
+
+    <div class="edit-controls">
+      <button type="button" class="btn-outline" id="edit-btn">Edit Profile</button>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const previewContent = document.getElementById('profile-preview-content');
+  const noDataMessage = document.getElementById('no-data-message');
+  const editBtn = document.getElementById('edit-btn');
+
+  // localStorage se profile data retrieve karna
+  const profileDataString = localStorage.getItem('profileData');
+  console.log("Retrieved data string from localStorage:", profileDataString); // Debug log
+
+  if (profileDataString) {
+    try {
+      const data = JSON.parse(profileDataString);
+      console.log("Parsed profile data:", data); // Debug log
+      // Preview ko render karna
+      renderProfilePreview(data);
+      noDataMessage.style.display = 'none'; // No data message hide karna
+    } catch (e) {
+      console.error("Error parsing profile data from localStorage:", e);
+      // Agar data parse nahi hota toh error message show karna
+      previewContent.innerHTML = `<p style="color: var(--error);">Error loading profile data. The data might be corrupted.</p>`;
+      noDataMessage.style.display = 'block'; // No data message show karna
+    }
+  } else {
+    // Agar localStorage mein data nahi milta
+    console.log("No profile data found in localStorage."); // Debug log
+    previewContent.style.display = 'none'; // Preview content hide karna
+    noDataMessage.style.display = 'block'; // No data message show karna
+  }
+
+  // Edit button ka event listener
+  editBtn.addEventListener('click', () => {
+    // Redirect back to index.html WITHOUT clearing localStorage
+    window.location.href = 'intern_profile.html';
+  });
+
+  // Profile preview ko dynamically generate karne ka function
+  function renderProfilePreview(data) {
+    // Helper function: Check if value exists and is not empty string/null/undefined
+    const hasValue = (value) => value !== null && value !== undefined && String(value).trim() !== '';
+
+    let previewHTML = ''; // Start with empty HTML
+
+    // --- Personal Section ---
+    let personalHTML = `
+        <div class="preview-pic">
+          ${hasValue(data.personal?.profilePicture)
+             ? `<img src="${data.personal.profilePicture}" alt="Profile Picture" class="profile-picture">`
+             : `<div class="placeholder-img"><span>Photo</span></div>`
+          }
+        </div>
+        <div class="preview-name">
+          ${hasValue(data.personal?.fullname) ? `<h2>${data.personal.fullname}</h2>` : ''}
+          ${hasValue(data.personal?.profession) ? `<p class="profession">${data.personal.profession}</p>` : ''}
+          ${hasValue(data.personal?.location) ? `<p class="location">${data.personal.location}</p>` : ''}
+        </div>`;
+
+    // Add personal section only if there's any data in it
+     if (hasValue(data.personal?.fullname) || hasValue(data.personal?.profession) || hasValue(data.personal?.location) || hasValue(data.personal?.profilePicture)) {
+        previewHTML += `<div class="preview-personal">${personalHTML}</div>`;
+     }
+
+
+    // --- Summary Section ---
+    if (hasValue(data.personal?.bio)) {
+      previewHTML += `
+        <div class="preview-section-item">
+          <h3>Summary</h3>
+          <p>${data.personal.bio}</p>
+        </div>
+      `;
+    }
+
+    // --- Professional Details Section ---
+    let professionalDetailsHTML = '';
+    if (hasValue(data.professional?.headline)) {
+        professionalDetailsHTML += `<p><strong>Headline:</strong> ${data.professional.headline}</p>`;
+    }
+    if (hasValue(data.professional?.yearsExperience)) {
+        // Add 'years' suffix if it's just a number
+        let expText = data.professional.yearsExperience;
+        if (!isNaN(expText) && expText !== '') { // Check if it's a number and not empty string
+            expText += Number(expText) === 1 ? ' year' : ' years';
+        } else if (expText === '') {
+            expText = 'Not specified'; // Handle empty string case
+        }
+        professionalDetailsHTML += `<p><strong>Experience:</strong> ${expText}</p>`;
+    }
+     if (hasValue(data.professional?.industry)) { // No need to check for empty string here as select default is ""
+        professionalDetailsHTML += `<p><strong>Industry:</strong> ${data.professional.industry}</p>`;
+    }
+
+    if (professionalDetailsHTML) {
+         previewHTML += `
+            <div class="preview-section-item">
+              <h3>Professional Details</h3>
+              ${professionalDetailsHTML}
+            </div>
+          `;
+    }
+
+
+    // --- Skills Section ---
+    if (data.professional?.skills && data.professional.skills.length > 0) {
+      // Filter out any potential empty skills just in case
+      const validSkills = data.professional.skills.filter(skill => hasValue(skill));
+      if (validSkills.length > 0) {
+          previewHTML += `
+            <div class="preview-section-item">
+              <h3>Skills</h3>
+              <div class="skills-container">
+                ${validSkills.map(skill => `<div class="skill-tag">${skill}</div>`).join('')}
+              </div>
+            </div>
+          `;
+      }
+    }
+
+    // --- Education Section ---
+    if (data.education && data.education.length > 0) {
+      // Filter out entries where both degree and institution are empty
+      const validEducationEntries = data.education.filter(edu => hasValue(edu.degree) || hasValue(edu.institution));
+
+      if (validEducationEntries.length > 0) {
+          previewHTML += `
+            <div class="preview-section-item">
+              <h3>Education</h3>
+              ${validEducationEntries.map((edu, index) => {
+                let entryHTML = '<div class="preview-item">';
+                if (hasValue(edu.degree)) entryHTML += `<h4>${edu.degree}</h4>`;
+                if (hasValue(edu.institution)) entryHTML += `<p class="institution">${edu.institution}</p>`;
+                if (hasValue(edu.startDate) || hasValue(edu.endDate)) {
+                    entryHTML += `<p class="date">${edu.startDate || 'N/A'} - ${edu.endDate || 'Present'}</p>`;
+                }
+                if (hasValue(edu.description)) entryHTML += `<p>${edu.description}</p>`;
+                entryHTML += '</div>';
+                // Add divider if not the last entry
+                if (index < validEducationEntries.length - 1) {
+                    entryHTML += '<div class="divider"></div>';
+                }
+                return entryHTML;
+              }).join('')}
+            </div>
+          `;
+      }
+    }
+
+    // --- Contact Information Section ---
+    let contactInfoHTML = '';
+     if (hasValue(data.contact?.email)) {
+        contactInfoHTML += `<p><strong>Email:</strong> <a href="mailto:${data.contact.email}">${data.contact.email}</a></p>`;
+     }
+     if (hasValue(data.contact?.phone)) {
+        contactInfoHTML += `<p><strong>Phone:</strong> ${data.contact.phone}</p>`;
+     }
+     if (hasValue(data.contact?.website)) {
+        // Ensure URL has protocol, default to http if missing for the link
+        let websiteUrl = data.contact.website;
+        if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+            websiteUrl = 'https://' + websiteUrl; // Default to https
+        }
+        contactInfoHTML += `<p><strong>Website:</strong> <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer">${data.contact.website}</a></p>`;
+     }
+
+     // Social Links
+     let socialLinksHTML = '';
+      const addSocialLink = (platform, url) => {
+          if (hasValue(url)) {
+              let fullUrl = url;
+              if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+                  fullUrl = 'https://' + fullUrl; // Default to https
+              }
+              // Capitalize platform name for display
+              const platformDisplay = platform.charAt(0).toUpperCase() + platform.slice(1);
+              return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${platformDisplay}</a>`;
+          }
+          return '';
+      };
+
+     socialLinksHTML += addSocialLink('linkedin', data.contact?.linkedin);
+     socialLinksHTML += addSocialLink('twitter', data.contact?.twitter);
+     socialLinksHTML += addSocialLink('github', data.contact?.github);
+
+
+     if (contactInfoHTML || socialLinksHTML) {
+          previewHTML += `
+            <div class="preview-section-item">
+              <h3>Contact Information</h3>
+              <div class="contact-info"> ${contactInfoHTML} </div>
+              ${socialLinksHTML ? `<div class="social-links">${socialLinksHTML}</div>` : ''}
+            </div>
+          `;
+     }
+
+    // Final check: If previewHTML is still empty, show a message
+    if (!previewHTML.trim()) {
+        previewContent.innerHTML = '<p>No profile information was entered.</p>';
+    } else {
+        // Final HTML ko content area mein insert karna
+        previewContent.innerHTML = previewHTML;
+    }
+  } // End of renderProfilePreview function
+
+}); // End of DOMContentLoaded listener
+</script>
+</body>
+</html>

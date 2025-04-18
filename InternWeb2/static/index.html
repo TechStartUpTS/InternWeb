@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASIFY - Sign In/Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f6f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1rem;
+        }
+
+        h1 {
+            font-weight: bold;
+            margin: 0;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        p {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            margin: 1.25rem 0;
+            color: #666;
+        }
+
+        form {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        input {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        input:focus {
+            outline: none;
+            background-color: #e8e8e8;
+        }
+
+        button {
+            background-color: #ff4b2b;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #ff4b2b;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .toggle-form {
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .toggle-form a {
+            color: #ff4b2b;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 0.25rem;
+        }
+
+        .form-container {
+            display: none;
+            width: 100%;
+        }
+
+        .form-container.active {
+            display: flex;
+            justify-content: center;
+        }
+
+        .social-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .social-btn {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .social-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .social-btn img {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="signup-container" class="form-container active">
+        <form id="signup-form" onsubmit="return handleSignup(event)">
+            <h1>Create Account</h1>
+            <div class="social-container">
+                <a href="/auth/google/login" class="social-btn">
+                    <img src="https://www.google.com/favicon.ico" alt="Google">
+                    Google
+                </a>
+                <a href="/auth/github/login" class="social-btn">
+                    <img src="https://github.com/favicon.ico" alt="GitHub">
+                    GitHub
+                </a>
+                <a href="/auth/linkedin/login" class="social-btn">
+                    <img src="https://www.linkedin.com/favicon.ico" alt="LinkedIn">
+                    LinkedIn
+                </a>
+            </div>
+            <p style="text-align: center; color: #666;">or use your email for registration</p>
+            <input type="text" name="name" placeholder="Name" required />
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <div id="signup-error" class="error-message"></div>
+            <button type="submit">Sign Up</button>
+            <p class="toggle-form">
+                Already have an account?<a href="#" onclick="toggleForm('signin')">Sign In</a>
+            </p>
+        </form>
+    </div>
+
+    <div id="signin-container" class="form-container">
+        <form id="signin-form" onsubmit="return handleSignin(event)">
+            <h1>Welcome Back</h1>
+            <div class="social-container">
+                <a href="/auth/google/login" class="social-btn">
+                    <img src="https://www.google.com/favicon.ico" alt="Google">
+                    Google
+                </a>
+                <a href="/auth/github/login" class="social-btn">
+                    <img src="https://github.com/favicon.ico" alt="GitHub">
+                    GitHub
+                </a>
+                <a href="/auth/linkedin/login" class="social-btn">
+                    <img src="https://www.linkedin.com/favicon.ico" alt="LinkedIn">
+                    LinkedIn
+                </a>
+            </div>
+            <p style="text-align: center; color: #666;">or use your account</p>
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <div id="signin-error" class="error-message"></div>
+            <button type="submit">Sign In</button>
+            <p class="toggle-form">
+                Don't have an account?<a href="#" onclick="toggleForm('signup')">Sign Up</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        function toggleForm(type) {
+            document.getElementById('signup-container').classList.toggle('active');
+            document.getElementById('signin-container').classList.toggle('active');
+            document.getElementById('signup-error').textContent = '';
+            document.getElementById('signin-error').textContent = '';
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            const errorEl = document.getElementById('signup-error');
+            const form = event.target;
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: form.name.value,
+                        email: form.email.value,
+                        password: form.password.value
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = data.redirect_url;
+                } else {
+                    errorEl.textContent = data.detail || 'Signup failed';
+                }
+            } catch (error) {
+                errorEl.textContent = 'An error occurred. Please try again.';
+            }
+            return false;
+        }
+
+        async function handleSignin(event) {
+            event.preventDefault();
+            const errorEl = document.getElementById('signin-error');
+            const form = event.target;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', form.email.value);
+                formData.append('password', form.password.value);
+
+                const response = await fetch('/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = data.redirect_url;
+                } else {
+                    errorEl.textContent = data.detail || 'Invalid credentials';
+                }
+            } catch (error) {
+                errorEl.textContent = 'An error occurred. Please try again.';
+            }
+            return false;
+        }
+
+        // Handle OAuth redirects
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('access_token');
+        if (token) {
+            localStorage.setItem('token', token);
+            const redirectUrl = urlParams.get('redirect_url') || '/home';
+            window.location.href = redirectUrl;
+        }
+
+        // Check if user is already logged in
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            fetch('/home', {
+                headers: {
+                    'Authorization': `Bearer ${storedToken}`
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/home';
+                } else {
+                    localStorage.removeItem('token');
+                }
+            }).catch(() => {
+                localStorage.removeItem('token');
+            });
+        }
+    </script>
+</body>
+</html>
