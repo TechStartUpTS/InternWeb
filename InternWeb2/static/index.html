@@ -1,4 +1,10 @@
-:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASIFY - Sign In/Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -86,7 +92,7 @@
         }
 
         .overlay {
-            background: #F2994A;
+            background: #1E2330;
             color: #FFFFFF;
             position: relative;
             left: -100%;
@@ -116,11 +122,13 @@
         }
 
         .overlay-panel h1 {
-            color: #ffffff;
+            color: #F2994A;
+            margin-bottom: 1rem;
         }
 
         .overlay-panel p {
-            color: rgba(255, 255, 255, 0.9);
+            color: #a0a0b0;
+            margin-bottom: 1.5rem;
         }
 
         .overlay-left {
@@ -238,83 +246,62 @@
 
         @media (max-width: 768px) {
             .container {
-                min-height: auto;
+                min-height: 500px;
                 max-width: 400px;
             }
 
             .form-container {
                 width: 100%;
                 height: 100%;
-                position: relative;
+                transition: transform 0.6s ease-in-out;
             }
 
             .sign-in-container, .sign-up-container {
                 width: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                height: 100%;
-                transition: transform 0.6s ease-in-out;
+                transform: translateX(0);
             }
 
             .sign-up-container {
-                transform: translateY(100%);
+                opacity: 1;
+                transform: translateX(100%);
             }
 
             .container.right-panel-active .sign-in-container {
-                transform: translateY(-100%);
+                transform: translateX(-100%);
             }
 
             .container.right-panel-active .sign-up-container {
-                transform: translateY(0);
+                transform: translateX(0);
             }
 
             .overlay-container {
-                display: block;
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: auto;
-                height: auto;
-                background: transparent;
-                z-index: 1000;
-            }
-
-            .overlay {
-                position: static;
-                width: auto;
-                height: auto;
-                background: transparent;
-                display: flex;
-                justify-content: center;
-            }
-
-            .overlay-panel {
-                position: static;
-                padding: 0;
-                width: auto;
-                height: auto;
-            }
-
-            .overlay-panel h1,
-            .overlay-panel p {
                 display: none;
             }
 
-            .overlay-panel button {
-                background: #F2994A;
-                padding: 0.5rem 1.5rem;
+            .toggle-container {
+                position: absolute;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                text-align: center;
+            }
+
+            .toggle-button {
+                background: none;
+                border: none;
+                color: #F2994A;
                 font-size: 0.9rem;
+                cursor: pointer;
+                padding: 0.5rem 1rem;
             }
 
-            .overlay-left, .overlay-right {
-                transform: none;
+            form {
+                padding: 0 30px;
             }
 
-            .container.right-panel-active .overlay-left,
-            .container.right-panel-active .overlay-right {
-                transform: none;
+            .social-container {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
     </style>
@@ -384,20 +371,29 @@
                 </div>
             </div>
         </div>
+        <div class="toggle-container">
+            <button class="toggle-button" id="mobileSignIn">Already have an account? Sign In</button>
+            <button class="toggle-button" id="mobileSignUp" style="display: none;">Don't have an account? Sign Up</button>
+        </div>
     </div>
 
     <script>
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
+        const mobileSignUpButton = document.getElementById('mobileSignUp');
+        const mobileSignInButton = document.getElementById('mobileSignIn');
         const container = document.getElementById('container');
 
-        signUpButton.addEventListener('click', () => {
-            container.classList.add('right-panel-active');
-        });
+        function toggleForm() {
+            container.classList.toggle('right-panel-active');
+            mobileSignUpButton.style.display = container.classList.contains('right-panel-active') ? 'none' : 'block';
+            mobileSignInButton.style.display = container.classList.contains('right-panel-active') ? 'block' : 'none';
+        }
 
-        signInButton.addEventListener('click', () => {
-            container.classList.remove('right-panel-active');
-        });
+        signUpButton.addEventListener('click', toggleForm);
+        signInButton.addEventListener('click', toggleForm);
+        mobileSignUpButton.addEventListener('click', toggleForm);
+        mobileSignInButton.addEventListener('click', toggleForm);
 
         async function handleSignup(e) {
             e.preventDefault();
