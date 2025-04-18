@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Cookie, Response, Request
+#tabish
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
-from typing import Optional
-from pymongo import MongoClient
+from typing import Optional, Literal, List
+from pymongo import MongoClient, ASCENDING
 import certifi
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
@@ -13,113 +14,100 @@ from fastapi_sso.sso.google import GoogleSSO
 from fastapi_sso.sso.github import GithubSSO
 from fastapi_sso.sso.linkedin import LinkedInSSO
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, HTMLResponse, JSONResponse
 from dotenv import load_dotenv
+from functools import wraps
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Configuration settings: secret key, algorithm and token expiration
+# Configuration settings
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 week
 
-# MongoDB Connection using the environment variable (MONGODB_URL)
+# MongoDB setup with connection pooling
 client = MongoClient(
     os.getenv("MONGODB_URL"),
-    tlsCAFile=certifi.where(),  # SSL certificate fix
-    connectTimeoutMS=30000,
-    socketTimeoutMS=30000
+    tlsCAFile=certifi.where(),
+    maxPoolSize=50,
+    waitQueueTimeoutMS=2000,
+    connectTimeoutMS=2000,
+    socketTimeoutMS=2000
 )
 db = client["startup_intern_db"]
 users_collection = db["users"]
 
-# Password hashing context using bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Create indexes for better query performance
+users_collection.create_index([("email", ASCENDING)], unique=True)
+users_collection.create_index([("role", ASCENDING)])
 
-# OAuth2 scheme for token extraction
+# Security contexts
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Create FastAPI app instance
+# FastAPI app setup
 app = FastAPI()
 
-# CORS middleware configuration for production domain
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://internweb.onrender.com"],  # Change as needed for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Static files with caching
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 
-# Serve the main page
-@app.get("/")
-async def read_index():
-    return FileResponse("static/index.html")
-
-# Serve the authentication (login/signup) page
-@app.get("/auth.html")
-async def get_auth_html():
-    return FileResponse("static/auth.html")
-
-
-# ---------------- Social OAuth Configurations ----------------
-
-# For Google OAuth, using production redirect URI and secure setting
+# OAuth configurations
 google_sso = GoogleSSO(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_uri="https://internweb.onrender.com/auth/google/callback",  # Production URL
+    redirect_uri="https://internweb.onrender.com/auth/google/callback",
     allow_insecure_http=False,
 )
 
-# For GitHub OAuth, using production redirect URI and secure setting
 github_sso = GithubSSO(
     client_id=os.getenv("GITHUB_CLIENT_ID"),
     client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
-    redirect_uri="https://internweb.onrender.com/auth/github/callback",  # Production URL
+    redirect_uri="https://internweb.onrender.com/auth/github/callback",
     allow_insecure_http=False,
 )
 
-# For LinkedIn OAuth, using production redirect URI and secure setting
 linkedin_sso = LinkedInSSO(
     client_id=os.getenv("LINKEDIN_CLIENT_ID"),
     client_secret=os.getenv("LINKEDIN_CLIENT_SECRET"),
-    redirect_uri="https://internweb.onrender.com/auth/linkedin/callback",  # Production URL
+    redirect_uri="https://internweb.onrender.com/auth/linkedin/callback",
     allow_insecure_http=False,
 )
 
-
 # --------------------- Models ---------------------
 
-# Base user model containing email and optional name
 class UserBase(BaseModel):
     email: EmailStr
     name: Optional[str] = None
 
-# Model used when creating a new user (includes password)
 class UserCreate(UserBase):
     password: str
 
-# User model to return to client without the password
 class User(UserBase):
     id: str
     created_at: datetime
     is_active: bool = True
-    auth_provider: str = "email"  # Could be email, google, github, or linkedin
+    auth_provider: str = "email"
+    role: Optional[str] = None
 
-# Token response model
 class Token(BaseModel):
     access_token: str
     token_type: str
 
-# Model for token data stored in JWT
 class TokenData(BaseModel):
     email: Optional[str] = None
 
+class RoleSelection(BaseModel):
+    role: Literal["intern", "startup"]
 
 # --------------------- Helper Functions ---------------------
 
@@ -130,35 +118,18 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 def get_user(email: str):
-    user = users_collection.find_one({"email": email})
-    if user:
-        return User(**user)
-    return None
-
-def authenticate_user(email: str, password: str):
-    user = get_user(email)
-    if not user:
-        return False
-    # Only email based login is supported here
-    if user.auth_provider != "email":
-        return False
-    # Retrieve the full user object from the database to check password
-    user_dict = users_collection.find_one({"email": email})
-    if not verify_password(password, user_dict["password"]):
-        return False
-    return user
+    user = users_collection.find_one(
+        {"email": email},
+        {"_id": 0}
+    )
+    return User(**user) if user else None
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# Function to extract the current user based on the token
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -170,236 +141,221 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    user = get_user(email=token_data.email)
+    
+    user = get_user(email)
     if user is None:
         raise credentials_exception
     return user
 
-
 # --------------------- Routes ---------------------
 
-# Signup endpoint for creating a new user using email and password
-@app.post("/signup", response_model=User)
-async def signup(user: UserCreate, response: Response):
-    db_user = get_user(email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+@app.get("/")
+async def read_index():
+    return FileResponse("static/index.html")
 
-    hashed_password = get_password_hash(user.password)
-    # Convert the user model to dict and add extra fields
-    user_dict = user.dict()
-    user_dict.pop("password")
-    user_dict.update({
-        "password": hashed_password,
-        "id": str(datetime.utcnow().timestamp()),
-        "created_at": datetime.utcnow(),
-        "auth_provider": "email"
-    })
+@app.get("/select_role")
+async def select_role_page(current_user: User = Depends(get_current_user)):
+    if current_user.role:
+        return RedirectResponse(url="/home", status_code=303)
+    return FileResponse("static/select_role.html")
 
-    users_collection.insert_one(user_dict)
+@app.post("/api/set_role")
+async def set_role(
+    role_data: RoleSelection,
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Role already set"
+        )
+    
+    users_collection.update_one(
+        {"email": current_user.email},
+        {"$set": {"role": role_data.role}}
+    )
+    
+    return {"next": f"/{role_data.role}_profile"}
 
-    # Create access token and set it as an HTTP-only cookie
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
+@app.get("/intern_profile")
+async def intern_profile_page(current_user: User = Depends(get_current_user)):
+    if current_user.role != "intern":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+    return FileResponse("static/intern_profile.html")
+
+@app.get("/startup_profile")
+async def startup_profile_page(current_user: User = Depends(get_current_user)):
+    if current_user.role != "startup":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+    return FileResponse("static/startup_profile.html")
+
+@app.get("/home")
+async def home_page(current_user: User = Depends(get_current_user)):
+    if not current_user.role:
+        return RedirectResponse(url="/select_role", status_code=303)
+    return HTMLResponse(
+        """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Welcome - EASIFY</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+            <style>
+                body {
+                    font-family: 'Poppins', sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background-color: #f5f5f5;
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Welcome to EASIFY</h1>
+        </body>
+        </html>
+        """
     )
 
-    return User(**user_dict)
+# --------------------- Authentication Routes ---------------------
 
+@app.post("/signup")
+async def signup(user: UserCreate):
+    if get_user(email=user.email):
+        raise HTTPException(status_code=400, detail="Email already registered")
 
-# Login endpoint for email based authentication
-@app.post("/token", response_model=Token)
-async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
+    user_dict = {
+        "email": user.email,
+        "name": user.name,
+        "password": get_password_hash(user.password),
+        "id": str(datetime.utcnow().timestamp()),
+        "created_at": datetime.utcnow(),
+        "auth_provider": "email",
+        "role": None
+    }
+
+    users_collection.insert_one(user_dict)
+    
+    access_token = create_access_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer", "redirect_url": "/select_role"}
+
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user_dict = users_collection.find_one(
+        {"email": form_data.username},
+        {"password": 1, "auth_provider": 1, "role": 1}
+    )
+    
+    if not user_dict or user_dict["auth_provider"] != "email" or \
+       not verify_password(form_data.password, user_dict["password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+    
+    access_token = create_access_token(
+        data={"sub": form_data.username},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    redirect_url = "/home" if user_dict.get("role") else "/select_role"
+    return {"access_token": access_token, "token_type": "bearer", "redirect_url": redirect_url}
+
+# OAuth handlers
+async def handle_oauth_callback(request: Request, user_info, provider: str):
     try:
-        user = authenticate_user(form_data.username, form_data.password)
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password"
-            )
+        db_user = get_user(email=user_info.email)
         
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        if not db_user:
+            user_data = {
+                "email": user_info.email,
+                "name": user_info.display_name,
+                "id": str(datetime.utcnow().timestamp()),
+                "created_at": datetime.utcnow(),
+                "auth_provider": provider,
+                "role": None
+            }
+            users_collection.insert_one(user_data)
+            redirect_url = "/select_role"
+        else:
+            redirect_url = "/home" if db_user.role else "/select_role"
+        
         access_token = create_access_token(
-            data={"sub": user.email}, 
-            expires_delta=access_token_expires
+            data={"sub": user_info.email},
+            expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-
-        response.set_cookie(
-            key="access_token",
-            value=f"Bearer {access_token}",
-            httponly=True,
-            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            samesite="lax",
-        )
-
-        return {"access_token": access_token, "token_type": "bearer"}
-
+        
+        return {"access_token": access_token, "token_type": "bearer", "redirect_url": redirect_url}
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Internal Server Error: {str(e)}"
+            detail=f"Authentication failed: {str(e)}"
         )
-
-
-# Endpoint to return the logged in user's information
-@app.get("/me", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_user)):
-    return current_user
-
-
-# Cookie-based login checking endpoint
-@app.get("/auth/cookie-login")
-async def cookie_login(response: Response, access_token: Optional[str] = Cookie(None)):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        token = access_token.split(" ")[1] if access_token.startswith("Bearer ") else access_token
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        user = get_user(email)
-        if not user:
-            raise HTTPException(status_code=401, detail="User not found")
-        return {"message": "Logged in successfully", "user": user}
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
-
 
 @app.get("/auth/google/login")
 async def google_login():
     return await google_sso.get_login_redirect()
 
+@app.get("/auth/google/callback")
+async def google_callback(request: Request):
+    user = await google_sso.verify_and_process(request)
+    result = await handle_oauth_callback(request, user, "google")
+    return RedirectResponse(
+        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        status_code=303
+    )
+
 @app.get("/auth/github/login")
 async def github_login():
     return await github_sso.get_login_redirect()
+
+@app.get("/auth/github/callback")
+async def github_callback(request: Request):
+    user = await github_sso.verify_and_process(request)
+    result = await handle_oauth_callback(request, user, "github")
+    return RedirectResponse(
+        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        status_code=303
+    )
 
 @app.get("/auth/linkedin/login")
 async def linkedin_login():
     return await linkedin_sso.get_login_redirect()
 
-
-# --------------------- Social Login Routes ---------------------
-
-# Google OAuth callback endpoint
-@app.get("/auth/google/callback")
-async def google_callback(request: Request, response: Response):
-    user = await google_sso.verify_and_process(request)
-
-    # Check if user already exists; if not, create a new user record
-    db_user = get_user(email=user.email)
-    if not db_user:
-        user_data = {
-            "email": user.email,
-            "name": user.display_name,
-            "id": str(datetime.utcnow().timestamp()),
-            "created_at": datetime.utcnow(),
-            "auth_provider": "google"
-        }
-        users_collection.insert_one(user_data)
-    else:
-        # Update last login information if needed
-        users_collection.update_one(
-            {"email": user.email},
-            {"$set": {"last_login": datetime.utcnow()}}
-        )
-
-    # Create token and set cookie for the user
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-    )
-
-    return RedirectResponse(url="https://internweb.onrender.com/dashboard")
-
-
-# GitHub OAuth callback endpoint
-@app.get("/auth/github/callback")
-async def github_callback(request: Request, response: Response):
-    user = await github_sso.verify_and_process(request)
-    db_user = get_user(email=user.email)
-    if not db_user:
-        # Ensure the auth_provider is set to "github" (not "google")
-        user_data = {
-            "email": user.email,
-            "name": user.display_name,
-            "id": str(datetime.utcnow().timestamp()),
-            "created_at": datetime.utcnow(),
-            "auth_provider": "github"
-        }
-        users_collection.insert_one(user_data)
-    else:
-        users_collection.update_one(
-            {"email": user.email},
-            {"$set": {"last_login": datetime.utcnow()}}
-        )
-
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
-    )
-
-    return RedirectResponse(url="https://internweb.onrender.com/dashboard")
-
-
-# LinkedIn OAuth callback endpoint
 @app.get("/auth/linkedin/callback")
-async def linkedin_callback(request: Request, response: Response):
+async def linkedin_callback(request: Request):
     user = await linkedin_sso.verify_and_process(request)
-    db_user = get_user(email=user.email)
-    if not db_user:
-        # Ensure the auth_provider is set to "linkedin" (not "google")
-        user_data = {
-            "email": user.email,
-            "name": user.display_name,
-            "id": str(datetime.utcnow().timestamp()),
-            "created_at": datetime.utcnow(),
-            "auth_provider": "linkedin"
-        }
-        users_collection.insert_one(user_data)
-    else:
-        users_collection.update_one(
-            {"email": user.email},
-            {"$set": {"last_login": datetime.utcnow()}}
-        )
-
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        httponly=True,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
+    result = await handle_oauth_callback(request, user, "linkedin")
+    return RedirectResponse(
+        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        status_code=303
     )
 
-    return RedirectResponse(url="https://internweb.onrender.com/dashboard")
-
-
-# Logout endpoint to remove the cookie
-@app.get("/logout")
-async def logout(response: Response):
-    response.delete_cookie(key="access_token")
-    return {"message": "Successfully logged out"}
-
-
-# --------------------- Run the App ---------------------
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+        workers=4,
+        proxy_headers=True,
+        forwarded_allow_ips="*"
+    )
