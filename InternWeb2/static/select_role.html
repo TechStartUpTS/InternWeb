@@ -130,45 +130,23 @@
     </div>
 
     <script>
-        // Get token from URL parameters or localStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('access_token') || localStorage.getItem('token');
-        
-        if (!token) {
-            window.location.href = '/';
-        } else {
-            // Store token in localStorage if it came from URL
-            if (urlParams.get('access_token')) {
-                localStorage.setItem('token', token);
-            }
-            
-            // Check if user already has a role
-            fetch('/home', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }).then(response => {
-                if (response.ok) {
-                    window.location.href = '/home';
-                }
-            }).catch(() => {
-                localStorage.removeItem('token');
-                window.location.href = '/';
-            });
-        }
-
         async function selectRole(role) {
+            const errorEl = document.getElementById('error-message');
+            const loadingEl = document.getElementById('loading');
+            const buttons = document.querySelectorAll('.role-btn');
+            
+            errorEl.textContent = '';
+            loadingEl.style.display = 'block';
+            buttons.forEach(btn => btn.disabled = true);
+
             try {
-                // Disable buttons during API call
-                document.querySelectorAll('button').forEach(btn => btn.disabled = true);
-                
                 const response = await fetch('/api/set_role', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    credentials: 'include',  // Include cookies in the request
+                    credentials: 'include',
                     body: JSON.stringify({ role })
                 });
 
@@ -181,11 +159,13 @@
                 window.location.href = data.next;
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('error-message').textContent = error.message;
-                document.getElementById('error-message').style.display = 'block';
+                errorEl.textContent = error.message;
+                if (error.message.includes('Not authenticated')) {
+                    window.location.href = '/';
+                }
             } finally {
-                // Re-enable buttons
-                document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                loadingEl.style.display = 'none';
+                buttons.forEach(btn => btn.disabled = false);
             }
         }
 
@@ -193,7 +173,7 @@
         (async function() {
             try {
                 const response = await fetch('/home', {
-                    credentials: 'include'  // Include cookies in the request
+                    credentials: 'include'
                 });
                 
                 if (!response.ok) {
