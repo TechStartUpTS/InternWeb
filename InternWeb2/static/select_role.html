@@ -130,6 +130,33 @@
     </div>
 
     <script>
+        // Get token from URL parameters or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('access_token') || localStorage.getItem('token');
+        
+        if (!token) {
+            window.location.href = '/';
+        } else {
+            // Store token in localStorage if it came from URL
+            if (urlParams.get('access_token')) {
+                localStorage.setItem('token', token);
+            }
+            
+            // Check if user already has a role
+            fetch('/home', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/home';
+                }
+            }).catch(() => {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+            });
+        }
+
         async function selectRole(role) {
             const errorEl = document.getElementById('error-message');
             const loadingEl = document.getElementById('loading');
@@ -169,25 +196,6 @@
                 loadingEl.style.display = 'none';
                 buttons.forEach(btn => btn.disabled = false);
             }
-        }
-
-        // Check if user is authenticated
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/';
-        } else {
-            fetch('/home', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }).then(response => {
-                if (response.ok) {
-                    window.location.href = '/home';
-                }
-            }).catch(() => {
-                localStorage.removeItem('token');
-                window.location.href = '/';
-            });
         }
     </script>
 </body>
