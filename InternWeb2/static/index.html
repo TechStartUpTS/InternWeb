@@ -294,6 +294,11 @@
             credentials: 'include'
         }).then(response => {
             if (response.ok) {
+                return response.json();
+            }
+            return { role: null };
+        }).then(data => {
+            if (data.role) {
                 window.location.href = '/home';
             }
         }).catch(() => {
