@@ -5,8 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EASIFY - Sign In/Sign Up</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Styles copied from auth.html and adapted */
+        /* CSS Variables for Dark Theme (post.txt se liya gaya) */
+        :root {
+          --background: #1A1F2C; /* Page background */
+          --foreground: #F9F7F7; /* Default text color */
+          --card: #111824;       /* Container background */
+          --card-foreground: #F9F7F7; /* Text color inside container */
+          --border: rgba(255, 255, 255, 0.1); /* Borders */
+          --input-bg: #2a3140;   /* Input field background */
+          --input-focus-bg: #3a4150; /* Input field background on focus */
+          --accent: #E6A55E;      /* Primary action color (buttons, links) */
+          --accent-hover: #D89144; /* Hover color for accent elements */
+          --error: #DC2626;       /* Error message color */
+          --radius: 0.375rem;    /* Default border radius */
+          --shadow: 0 8px 30px rgba(0, 0, 0, 0.5); /* Box shadow */
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -14,55 +30,64 @@
         }
 
         body {
-            background: #f6f5f7;
+            background: var(--background); /* Page background */
+            color: var(--foreground);      /* Default text color */
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            /* Using Poppins font from original index.html */
             font-family: 'Poppins', sans-serif;
             height: 100vh;
-            padding: 1rem;
+            padding: 1rem; /* Body padding (desktop) */
         }
 
         h1 {
             font-weight: bold;
             margin: 0;
-            font-size: 1.5rem; /* Adjusted size */
+            font-size: 1.5rem;
             margin-bottom: 1rem;
+            color: var(--card-foreground); /* Heading color inside card */
         }
 
         p {
             font-size: 0.875rem;
             line-height: 1.25rem;
             margin: 1.25rem 0 1.875rem;
+            color: rgba(249, 247, 247, 0.8); /* Slightly muted paragraph text */
         }
 
         span {
-            font-size: 0.75rem; /* Adjusted size */
-            color: #555; /* Slightly darker text */
+            font-size: 0.75rem;
+            color: rgba(249, 247, 247, 0.7); /* Muted span text */
         }
 
         a {
-            color: #333;
+            color: var(--accent); /* Link color */
             font-size: 0.875rem;
             text-decoration: none;
             margin: 0.9375rem 0;
+            transition: color 0.2s ease;
+        }
+        a:hover {
+            color: var(--accent-hover); /* Link hover color */
         }
 
         button {
             border: none;
             padding: 0.75rem 3rem;
-            background-color: #ff4b2b;
-            color: #ffffff;
+            background-color: var(--accent);      /* Button background */
+            color: #ffffff; /* Button text color (white for contrast) */
             font-size: 0.875rem;
             font-weight: bold;
             letter-spacing: 0.0625rem;
             text-transform: uppercase;
-            transition: transform 80ms ease-in;
+            transition: background-color 0.2s ease, transform 80ms ease-in;
             cursor: pointer;
-            border-radius: 0.375rem; /* Rounded corners */
-            margin-top: 1rem; /* Added margin */
+            border-radius: var(--radius);
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: var(--accent-hover); /* Button hover background */
         }
 
         button:active {
@@ -75,48 +100,58 @@
 
         button.ghost {
             background-color: transparent;
-            border: 2px solid #ffffff; /* White border for ghost button */
+            border: 2px solid var(--foreground); /* Ghost button border */
+            color: var(--foreground);           /* Ghost button text color */
         }
 
          button.ghost:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Slight white overlay on hover */
-        }
+            background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+            border-color: var(--foreground); /* Keep border color on hover */
+         }
 
 
         form {
-            background-color: #ffffff;
+            background-color: var(--card); /* Form background (same as card) */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            padding: 0 3.125rem; /* Padding from auth.html */
+            padding: 0 3.125rem; /* Horizontal padding inside form */
             height: 100%;
+            width: 100%; /* Make form take full width of its container */
             text-align: center;
         }
 
         input {
-            background-color: #f0f0f0; /* Lighter input background */
-            border: none;
+            background-color: var(--input-bg); /* Dark input background */
+            border: 1px solid var(--border); /* Subtle border */
+            color: var(--card-foreground);   /* Light text color */
             padding: 0.75rem 0.9375rem;
             margin: 0.5rem 0;
             width: 100%;
-            border-radius: 0.375rem; /* Rounded corners */
+            border-radius: var(--radius);
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        input::placeholder {
+            color: rgba(249, 247, 247, 0.5); /* Lighter placeholder text */
         }
 
         input:focus {
             outline: none;
-            background-color: #e8e8e8; /* Slightly darker on focus */
+            background-color: var(--input-focus-bg); /* Slightly lighter on focus */
+            border-color: var(--accent); /* Highlight border on focus */
         }
 
         .container {
-            background-color: #ffffff;
-            border-radius: 0.625rem; /* Rounded corners */
-            box-shadow: 0 0.875rem 1.75rem rgba(0, 0, 0, 0.25), 0 0.625rem 0.625rem rgba(0, 0, 0, 0.22);
+            background-color: var(--card); /* Container background */
+            border-radius: 0.625rem; /* Slightly larger radius */
+            box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            width: 48rem; /* Width from auth.html */
+            width: 48rem;
             max-width: 100%;
-            min-height: 30rem; /* Min height from auth.html */
+            min-height: 30rem;
+            border: 1px solid var(--border); /* Add subtle border to container */
         }
 
         .form-container {
@@ -124,18 +159,17 @@
             top: 0;
             height: 100%;
             transition: all 0.6s ease-in-out;
+            /* Width fix: Ensure container itself takes 50% */
+            width: 50%;
         }
 
         .sign-in-container {
             left: 0;
-            width: 50%;
             z-index: 2;
         }
 
-        /* Initially hide sign-up */
         .sign-up-container {
             left: 0;
-            width: 50%;
             opacity: 0;
             z-index: 1;
         }
@@ -143,25 +177,19 @@
         /* Animations for panel switching */
         .container.right-panel-active .sign-in-container {
             transform: translateX(100%);
-             opacity: 0; /* Fade out */
+             opacity: 0;
         }
 
         .container.right-panel-active .sign-up-container {
             transform: translateX(100%);
             opacity: 1;
             z-index: 5;
-            animation: show 0.6s; /* Simple fade-in */
+            animation: show 0.6s;
         }
 
         @keyframes show {
-            0%, 49.99% {
-                opacity: 0;
-                z-index: 1;
-            }
-            50%, 100% {
-                opacity: 1;
-                z-index: 5;
-            }
+            0%, 49.99% { opacity: 0; z-index: 1; }
+            50%, 100% { opacity: 1; z-index: 5; }
         }
 
         .overlay-container {
@@ -180,11 +208,12 @@
         }
 
         .overlay {
-            background: linear-gradient(to right, #ff4b2b, #ff416c); /* Gradient background */
+            /* Gradient using accent colors */
+            background: linear-gradient(to right, var(--accent), var(--accent-hover));
             background-repeat: no-repeat;
             background-size: cover;
             background-position: 0 0;
-            color: #ffffff;
+            color: #ffffff; /* White text on overlay */
             position: relative;
             left: -100%;
             height: 100%;
@@ -192,6 +221,14 @@
             transform: translateX(0);
             transition: transform 0.6s ease-in-out;
         }
+         /* Overlay text color adjustment */
+        .overlay h1 {
+            color: #ffffff;
+        }
+        .overlay p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
 
         .container.right-panel-active .overlay {
             transform: translateX(50%);
@@ -229,80 +266,75 @@
             transform: translateX(20%);
         }
 
-        /* Social login button styling from auth.html */
+        /* Social login button styling */
          .social-container {
             margin: 1.25rem 0;
             display: flex;
-            gap: 0.5rem; /* Gap between icons */
+            gap: 0.5rem;
         }
 
         .social-container a {
-            border: 1px solid #dddddd;
-            border-radius: 50%; /* Circular buttons */
-            display: inline-flex; /* Use flex to center icon */
+            border: 1px solid var(--border); /* Use theme border color */
+            border-radius: 50%;
+            display: inline-flex;
             justify-content: center;
             align-items: center;
-            margin: 0 0.3125rem; /* Spacing */
-            height: 2.5rem; /* Size */
-            width: 2.5rem;  /* Size */
-            color: #333333; /* Icon color */
-            transition: background-color 0.3s ease;
-            font-size: 1rem; /* Icon size */
+            margin: 0 0.3125rem;
+            height: 2.5rem;
+            width: 2.5rem;
+            color: var(--card-foreground); /* Icon color */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 1rem;
         }
 
         .social-container a:hover {
-            background-color: #f0f0f0; /* Light grey background on hover */
-            color: #ff4b2b; /* Change icon color on hover */
-        }
-
-        /* Hide original index.html social buttons if they exist */
-        .social-btn {
-             display: none;
+            background-color: rgba(255, 255, 255, 0.1); /* Subtle background hover */
+            color: var(--accent); /* Icon color changes to accent on hover */
         }
 
         .mobile-text {
-            display: none; /* Hidden by default, shown on mobile */
+            display: none;
         }
 
         .error-message {
-            color: #ff4b2b;
+            color: var(--error); /* Use theme error color */
             font-size: 0.8rem;
             margin-top: 0.5rem;
-            min-height: 1em; /* Reserve space to prevent layout shift */
-            text-align: center; /* Center error text */
+            min-height: 1em;
+            text-align: center;
         }
 
-        /* Mobile Responsive Design from auth.html */
+        /* Mobile Responsive Design */
         @media (max-width: 768px) {
              body {
-                padding: 0; /* Remove body padding on mobile */
+                padding: 0; /* No body padding on mobile */
             }
             .container {
-                min-height: 100vh; /* Full height on mobile */
+                min-height: 100vh;
                 width: 100%;
-                border-radius: 0; /* No rounded corners on mobile */
-                box-shadow: none; /* No shadow on mobile */
+                border-radius: 0;
+                box-shadow: none;
+                border: none; /* Remove container border on mobile */
             }
 
             .overlay-container {
-                display: none; /* Hide overlay on mobile */
+                display: none;
             }
 
-            .sign-in-container,
-            .sign-up-container {
+            .form-container { /* Mobile form container takes full width */
                 width: 100%;
-                position: relative; /* Change positioning for mobile */
-                opacity: 1 !important; /* Ensure forms are visible */
-                transform: none !important; /* Reset transforms */
-                z-index: 1 !important; /* Reset z-index */
+                position: relative;
+                opacity: 1 !important;
+                transform: none !important;
+                z-index: 1 !important;
             }
 
             /* Show only one form at a time on mobile */
              .sign-up-container {
-                display: none; /* Hide signup by default on mobile */
+                display: none; /* Hide signup by default */
             }
             .container.right-panel-active .sign-in-container {
-                 display: none; /* Hide signin when signup is active */
+                 display: none; /* Hide signin when signup active */
             }
              .container.right-panel-active .sign-up-container {
                 display: flex; /* Show signup when active */
@@ -313,42 +345,49 @@
                 display: block;
                 margin-top: 1rem;
                 font-size: 0.875rem;
-                color: #555; /* Text color for mobile toggle */
+                color: rgba(249, 247, 247, 0.7); /* Muted mobile toggle text */
             }
 
             .mobile-text a {
-                color: #ff4b2b; /* Link color */
+                color: var(--accent); /* Link color */
                 font-weight: 500;
                 margin: 0;
                 margin-left: 0.25rem;
             }
 
             form {
-                padding: 0 1.5rem; /* Adjust padding for mobile */
-                box-shadow: none; /* Remove form shadow on mobile */
-                background: transparent; /* Transparent form background on mobile */
-                height: auto; /* Adjust height */
-                justify-content: center; /* Center content */
-                 min-height: 80vh; /* Ensure form takes up significant space */
+                padding: 0 1.5rem;
+                box-shadow: none;
+                /* Form background transparent on mobile to show body background */
+                background: transparent;
+                height: auto;
+                justify-content: center;
+                min-height: 80vh;
             }
+             /* Adjust heading color for mobile if needed (if form bg is transparent) */
+             form h1 {
+                 color: var(--foreground); /* Use main foreground color */
+             }
+             form span {
+                 color: rgba(249, 247, 247, 0.7);
+             }
 
-             h1 {
-                margin-top: 2rem; /* Add top margin for heading on mobile */
+             h1 { /* General heading adjustment for mobile */
+                margin-top: 2rem;
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container" id="container">
 
         <div class="form-container sign-up-container">
             <form id="signup-form" onsubmit="return handleSignup(event)">
-                <h1 style="color: black;">Create Account</h1>
+                <h1>Create Account</h1>
                  <div class="social-container">
-                    <a href="/auth/google/login" class="social"><i class="fab fa-google"></i></a>
-                    <a href="/auth/github/login" class="social"><i class="fab fa-github"></i></a>
-                    <a href="/auth/linkedin/login" class="social"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="/auth/google/login" class="social" aria-label="Sign up with Google"><i class="fab fa-google"></i></a>
+                    <a href="/auth/github/login" class="social" aria-label="Sign up with Github"><i class="fab fa-github"></i></a>
+                    <a href="/auth/linkedin/login" class="social" aria-label="Sign up with Linkedin"><i class="fab fa-linkedin-in"></i></a>
                 </div>
                 <span>or use your email for registration</span>
                 <input type="text" name="name" placeholder="Name" required />
@@ -362,11 +401,11 @@
 
         <div class="form-container sign-in-container">
              <form id="signin-form" onsubmit="return handleSignin(event)">
-                <h1 style="color: black;">Welcome Back</h1>
+                <h1>Welcome Back</h1>
                  <div class="social-container">
-                    <a href="/auth/google/login" class="social"><i class="fab fa-google"></i></a>
-                    <a href="/auth/github/login" class="social"><i class="fab fa-github"></i></a>
-                    <a href="/auth/linkedin/login" class="social"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="/auth/google/login" class="social" aria-label="Sign in with Google"><i class="fab fa-google"></i></a>
+                    <a href="/auth/github/login" class="social" aria-label="Sign in with Github"><i class="fab fa-github"></i></a>
+                    <a href="/auth/linkedin/login" class="social" aria-label="Sign in with Linkedin"><i class="fab fa-linkedin-in"></i></a>
                 </div>
                 <span>or use your account</span>
                 <input type="email" name="email" placeholder="Email" required />
@@ -394,39 +433,37 @@
     </div>
 
     <script>
-        // Function to toggle panels (from auth.html)
+        // Function to toggle panels
         function togglePanel(event) {
-             // Prevent default link behavior if called from an anchor tag
             if (event) {
-                event.preventDefault();
+                event.preventDefault(); // Link click ko default action se rokna
             }
             const container = document.getElementById('container');
             container.classList.toggle('right-panel-active');
 
-             // Clear error messages when toggling
+             // Toggle karte waqt error messages clear karna
             document.getElementById('signup-error').textContent = '';
             document.getElementById('signin-error').textContent = '';
         }
 
-        // --- Original JavaScript Logic from index.html ---
+        // --- Original JavaScript Logic (No changes here) ---
 
-        // Function to handle Signup form submission
+        // Signup form submission handle karne ka function
         async function handleSignup(e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
             const errorEl = document.getElementById('signup-error');
-            errorEl.textContent = ''; // Clear previous errors
+            errorEl.textContent = '';
 
             try {
-                // API call to signup endpoint
-                const response = await fetch('/signup', { // Using relative URL from original index.html
+                const response = await fetch('/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    credentials: 'include', // Include cookies
+                    credentials: 'include',
                     body: JSON.stringify({
                         email: formData.get('email'),
                         password: formData.get('password'),
@@ -435,97 +472,83 @@
                 });
 
                 if (!response.ok) {
-                    // Handle signup errors
                     const error = await response.json();
                     throw new Error(error.detail || 'Signup failed. Please try again.');
                 }
 
-                // On successful signup, redirect
                 const data = await response.json();
                 if (data.redirect_url) {
-                    window.location.href = data.redirect_url; // Redirect to the provided URL
+                    window.location.href = data.redirect_url;
                 } else {
-                     // Fallback or default redirect if URL not provided
-                     window.location.href = '/home'; // Example fallback
+                     window.location.href = '/home'; // Fallback redirect
                 }
             } catch (error) {
                 console.error('Signup error:', error);
-                errorEl.textContent = error.message; // Display error message
+                errorEl.textContent = error.message;
             }
         }
 
-        // Function to handle Signin form submission
+        // Signin form submission handle karne ka function
         async function handleSignin(e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
-            const errorEl = document.getElementById('signin-error'); // Corrected ID
-            errorEl.textContent = ''; // Clear previous errors
+            const errorEl = document.getElementById('signin-error');
+            errorEl.textContent = '';
 
             try {
-                // API call to token endpoint for login
-                const response = await fetch('/token', { // Using relative URL from original index.html
+                const response = await fetch('/token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'Accept': 'application/json'
                     },
-                    credentials: 'include', // Include cookies
-                    body: new URLSearchParams({ // Send as form data
-                        username: formData.get('email'), // 'username' is expected by the backend
+                    credentials: 'include',
+                    body: new URLSearchParams({
+                        username: formData.get('email'),
                         password: formData.get('password')
                     })
                 });
 
                 if (!response.ok) {
-                    // Handle login errors
                     const error = await response.json();
                     throw new Error(error.detail || 'Login failed. Check email/password.');
                 }
 
-                // On successful login, redirect
                 const data = await response.json();
                  if (data.redirect_url) {
-                    window.location.href = data.redirect_url; // Redirect to the provided URL
+                    window.location.href = data.redirect_url;
                 } else {
-                     // Fallback or default redirect if URL not provided
-                     window.location.href = '/home'; // Example fallback
+                     window.location.href = '/home'; // Fallback redirect
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                errorEl.textContent = error.message; // Display error message
+                errorEl.textContent = error.message;
             }
         }
 
-        // Handle OAuth redirects (if applicable, kept from original index.html)
+        // OAuth redirects handle karna (agar applicable ho)
         if (window.location.hash && window.location.hash.includes('access_token')) {
             const params = new URLSearchParams(window.location.hash.substring(1));
             const token = params.get('access_token');
             if (token) {
-                // Set token in cookie (adjust cookie settings as needed)
                 document.cookie = `access_token=${token}; path=/; secure; samesite=Lax`;
-                // Redirect after setting cookie, maybe to select_role or home
-                window.location.href = '/select_role'; // Or '/home' depending on flow
-                // Clear the hash to prevent reprocessing
-                window.location.hash = '';
+                window.location.href = '/select_role'; // Redirect URL
+                window.location.hash = ''; // Hash clear karna
             }
         }
 
-        // Check if user is already logged in (kept from original index.html)
-        // This check runs on page load
+        // Check karna ki user pehle se logged in hai ya nahi
         (async () => {
              try {
-                const response = await fetch('/home', { // Check authentication status
-                    method: 'GET', // Assuming GET request to check status
-                    headers: {
-                         'Accept': 'application/json' // Expect JSON response
-                    },
-                    credentials: 'include' // Send cookies to check session
+                const response = await fetch('/home', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
                      const data = await response.json();
-                     // If response is ok and indicates logged in (e.g., has role), redirect
                      if (data && data.role) {
                          console.log('User already logged in, redirecting to /home');
                          window.location.href = '/home';
@@ -533,17 +556,14 @@
                           console.log('User not logged in or session invalid.');
                      }
                  } else if (response.status === 401 || response.status === 403) {
-                     // Unauthorized or Forbidden - user is not logged in
                      console.log('User not authenticated.');
                  } else {
-                     // Other non-OK responses
                      console.log('Authentication check failed with status:', response.status);
                  }
              } catch (error) {
-                 // Network error or other issues fetching
                  console.error('Error checking authentication status:', error);
              }
-        })(); // Immediately invoke the async function
+        })();
 
     </script>
 </body>
