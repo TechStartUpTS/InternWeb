@@ -1,5 +1,4 @@
-#tabish
-from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
@@ -52,7 +51,7 @@ app = FastAPI()
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://internweb.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -137,15 +136,18 @@ async def get_current_user(request: Request):
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    # Try to get token from Authorization header
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        # Try to get token from query parameters
-        token = request.query_params.get("access_token")
-        if not token:
-            raise credentials_exception
-    else:
-        token = auth_header.split(" ")[1]
+    # Try to get token from cookie
+    token = request.cookies.get("access_token")
+    if not token:
+        # Try to get token from Authorization header
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        else:
+            # Try to get token from query parameters
+            token = request.query_params.get("access_token")
+            if not token:
+                raise credentials_exception
     
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -256,7 +258,7 @@ async def home_page(request: Request):
 # --------------------- Authentication Routes ---------------------
 
 @app.post("/signup")
-async def signup(user: UserCreate):
+async def signup(user: UserCreate, response: Response):
     if get_user(email=user.email):
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -277,10 +279,19 @@ async def signup(user: UserCreate):
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
-    return {"access_token": access_token, "token_type": "bearer", "redirect_url": "/select_role"}
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite='Lax',
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
+    return {"redirect_url": "/select_role"}
 
 @app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), response: Response = None):
     user_dict = users_collection.find_one(
         {"email": form_data.username},
         {"password": 1, "auth_provider": 1, "role": 1}
@@ -298,11 +309,20 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite='Lax',
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
     redirect_url = "/home" if user_dict.get("role") else "/select_role"
-    return {"access_token": access_token, "token_type": "bearer", "redirect_url": redirect_url}
+    return {"redirect_url": redirect_url}
 
 # OAuth handlers
-async def handle_oauth_callback(request: Request, user_info, provider: str):
+async def handle_oauth_callback(request: Request, user_info, provider: str, response: Response):
     try:
         db_user = get_user(email=user_info.email)
         
@@ -325,7 +345,16 @@ async def handle_oauth_callback(request: Request, user_info, provider: str):
             expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         )
         
-        return {"access_token": access_token, "token_type": "bearer", "redirect_url": redirect_url}
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        )
+        
+        return {"redirect_url": redirect_url}
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -337,11 +366,11 @@ async def google_login():
     return await google_sso.get_login_redirect()
 
 @app.get("/auth/google/callback")
-async def google_callback(request: Request):
+async def google_callback(request: Request, response: Response):
     user = await google_sso.verify_and_process(request)
-    result = await handle_oauth_callback(request, user, "google")
+    result = await handle_oauth_callback(request, user, "google", response)
     return RedirectResponse(
-        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        url=result['redirect_url'],
         status_code=303
     )
 
@@ -350,11 +379,11 @@ async def github_login():
     return await github_sso.get_login_redirect()
 
 @app.get("/auth/github/callback")
-async def github_callback(request: Request):
+async def github_callback(request: Request, response: Response):
     user = await github_sso.verify_and_process(request)
-    result = await handle_oauth_callback(request, user, "github")
+    result = await handle_oauth_callback(request, user, "github", response)
     return RedirectResponse(
-        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        url=result['redirect_url'],
         status_code=303
     )
 
@@ -363,11 +392,11 @@ async def linkedin_login():
     return await linkedin_sso.get_login_redirect()
 
 @app.get("/auth/linkedin/callback")
-async def linkedin_callback(request: Request):
+async def linkedin_callback(request: Request, response: Response):
     user = await linkedin_sso.verify_and_process(request)
-    result = await handle_oauth_callback(request, user, "linkedin")
+    result = await handle_oauth_callback(request, user, "linkedin", response)
     return RedirectResponse(
-        url=f"{result['redirect_url']}?access_token={result['access_token']}&token_type={result['token_type']}",
+        url=result['redirect_url'],
         status_code=303
     )
 
