@@ -222,38 +222,19 @@ async def startup_profile_page(request: Request):
 
 @app.get("/home")
 async def home_page(request: Request):
-    current_user = await get_current_user(request)
-    if not current_user.role:
-        return RedirectResponse(url="/select_role", status_code=303)
-    return HTMLResponse(
-        """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Welcome - EASIFY</title>
-            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-            <style>
-                body {
-                    font-family: 'Poppins', sans-serif;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    background-color: #f5f5f5;
-                }
-                h1 {
-                    color: #333;
-                    text-align: center;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Welcome to EASIFY</h1>
-        </body>
-        </html>
-        """
-    )
+    try:
+        current_user = await get_current_user(request)
+        return JSONResponse(
+            content={"role": current_user.role},
+            status_code=200
+        )
+    except HTTPException as e:
+        if e.status_code == 401:
+            return JSONResponse(
+                content={"role": None},
+                status_code=200
+            )
+        raise e
 
 # --------------------- Authentication Routes ---------------------
 
