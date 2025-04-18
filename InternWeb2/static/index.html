@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EASIFY - Sign In/Sign Up</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -92,10 +86,7 @@
         }
 
         .overlay {
-            background: linear-gradient(to right, #F2A94F, #ff4b2b);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: 0 0;
+            background: #F2994A;
             color: #FFFFFF;
             position: relative;
             left: -100%;
@@ -122,6 +113,14 @@
             width: 50%;
             transform: translateX(0);
             transition: transform 0.6s ease-in-out;
+        }
+
+        .overlay-panel h1 {
+            color: #ffffff;
+        }
+
+        .overlay-panel p {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .overlay-left {
@@ -156,7 +155,7 @@
             font-weight: 600;
             margin: 0;
             font-size: 2rem;
-            color: #F2A94F;
+            color: #F2994A;
             margin-bottom: 1rem;
         }
 
@@ -183,7 +182,7 @@
         }
 
         button {
-            background: linear-gradient(to right, #F2A94F, #ff4b2b);
+            background: #F2994A;
             color: white;
             border: none;
             padding: 0.75rem 2.5rem;
@@ -197,7 +196,7 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(242, 169, 79, 0.3);
+            box-shadow: 0 5px 15px rgba(242, 153, 74, 0.3);
         }
 
         .social-container {
@@ -239,20 +238,27 @@
 
         @media (max-width: 768px) {
             .container {
-                min-height: 800px;
+                min-height: auto;
+                max-width: 400px;
             }
 
             .form-container {
                 width: 100%;
-                height: 50%;
+                height: 100%;
+                position: relative;
             }
 
             .sign-in-container, .sign-up-container {
                 width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                transition: transform 0.6s ease-in-out;
             }
 
-            .overlay-container {
-                display: none;
+            .sign-up-container {
+                transform: translateY(100%);
             }
 
             .container.right-panel-active .sign-in-container {
@@ -260,7 +266,55 @@
             }
 
             .container.right-panel-active .sign-up-container {
-                transform: translateY(-100%);
+                transform: translateY(0);
+            }
+
+            .overlay-container {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                height: auto;
+                background: transparent;
+                z-index: 1000;
+            }
+
+            .overlay {
+                position: static;
+                width: auto;
+                height: auto;
+                background: transparent;
+                display: flex;
+                justify-content: center;
+            }
+
+            .overlay-panel {
+                position: static;
+                padding: 0;
+                width: auto;
+                height: auto;
+            }
+
+            .overlay-panel h1,
+            .overlay-panel p {
+                display: none;
+            }
+
+            .overlay-panel button {
+                background: #F2994A;
+                padding: 0.5rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .overlay-left, .overlay-right {
+                transform: none;
+            }
+
+            .container.right-panel-active .overlay-left,
+            .container.right-panel-active .overlay-right {
+                transform: none;
             }
         }
     </style>
