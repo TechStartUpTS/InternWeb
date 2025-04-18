@@ -130,6 +130,31 @@
     </div>
 
     <script>
+        // Check authentication on page load
+        (async function() {
+            try {
+                const response = await fetch('/home', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Failed to verify authentication');
+                }
+
+                const data = await response.json();
+                if (data.role) {
+                    window.location.href = '/home';
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                window.location.href = '/';
+            }
+        })();
+
         async function selectRole(role) {
             const errorEl = document.getElementById('error-message');
             const loadingEl = document.getElementById('loading');
@@ -168,26 +193,6 @@
                 buttons.forEach(btn => btn.disabled = false);
             }
         }
-
-        // Check authentication on page load
-        (async function() {
-            try {
-                const response = await fetch('/home', {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/';
-                        return;
-                    }
-                    throw new Error('Failed to verify authentication');
-                }
-            } catch (error) {
-                console.error('Authentication error:', error);
-                window.location.href = '/';
-            }
-        })();
     </script>
 </body>
 </html>
