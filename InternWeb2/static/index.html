@@ -290,22 +290,15 @@
         }
 
         // Check if user is already logged in
-        const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            fetch('/home', {
-                headers: {
-                    'Authorization': `Bearer ${storedToken}`
-                }
-            }).then(response => {
-                if (response.ok) {
-                    window.location.href = '/home';
-                } else {
-                    localStorage.removeItem('token');
-                }
-            }).catch(() => {
-                localStorage.removeItem('token');
-            });
-        }
+        fetch('/home', {
+            credentials: 'include'
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = '/home';
+            }
+        }).catch(() => {
+            // If not authenticated, stay on login page
+        });
     </script>
 </body>
 </html>
